@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Actions - QR Codes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a5490;
+            --primary-dark: #0d3a6b;
+            --text: #1a1a1a;
+            --text-light: #666;
+            --bg: #ffffff;
+            --bg-light: #f5f5f5;
+            --border: #e0e0e0;
+            --focus: #0066cc;
+            --error: #d32f2f;
+            --success: #2e7d32;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-light);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .action-card {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 180px;
+        }
+
+        .action-card:hover,
+        .action-card:focus {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        .action-card:focus {
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        .qr-thumbnail {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 0.75rem;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .qr-thumbnail canvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: crisp-edges;
+        }
+
+        .action-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 90vw;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            margin: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+            margin-right: 1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            line-height: 1;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            background: var(--bg-light);
+            outline: 2px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        .modal-qr-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            touch-action: pan-x pan-y pinch-zoom;
+        }
+
+        .modal-qr {
+            width: 90%;
+            max-width: 400px;
+            height: auto;
+            image-rendering: crisp-edges;
+        }
+
+        .modal-url {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            word-break: break-all;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:hover,
+        .btn:focus {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            outline: 3px solid var(--focus);
+            outline-offset: 2px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            background: var(--bg-light);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 2000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .actions-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+
+            .action-card {
+                min-height: 200px;
+            }
+
+            .qr-thumbnail {
+                width: 120px;
+                height: 120px;
+            }
+
+            .modal-actions {
+                flex-direction: row;
+            }
+
+            .btn {
+                flex: 1;
+            }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Campaign Actions</h1>
+    
+    <div class="actions-grid" role="list" aria-label="Campaign action QR codes">
+        <!-- Cards will be generated by JavaScript -->
+    </div>
+
+    <div class="modal" id="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title"></h2>
+                <button class="close-btn" id="close-btn" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-qr-container" id="modal-qr-container">
+                <canvas class="modal-qr" id="modal-qr" aria-label="QR code"></canvas>
+            </div>
+            <div class="modal-url" id="modal-url" aria-label="URL"></div>
+            <div class="modal-actions">
+                <a href="#" class="btn" id="open-link-btn" target="_self" aria-label="Open link">Open Link</a>
+                <button class="btn btn-secondary" id="copy-link-btn" aria-label="Copy link to clipboard">Copy Link</button>
+                <button class="btn btn-secondary" id="download-qr-btn" aria-label="Download QR code as PNG">Download QR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+    <script>
+        // Lightweight QR Code Generator (embedded, self-contained)
+        (function() {
+            'use strict';
+
+            function QRCode(text, size) {
+                this.text = text;
+                this.size = size || 256;
+                this.modules = [];
+                this.generate();
+            }
+
+            QRCode.prototype.generate = function() {
+                const dataBits = this.encodeData(this.text);
+                const version = this.selectVersion(dataBits.length);
+                const size = 21 + (version - 1) * 4;
+                this.modules = Array(size).fill(null).map(() => Array(size).fill(null));
+                this.addPatterns();
+                this.placeData(dataBits);
+                this.applyMask();
+            };
+
+            QRCode.prototype.encodeData = function(text) {
+                const mode = 4; // Byte mode
+                const length = text.length;
+                let bits = [];
+                
+                // Mode indicator (4 bits for byte mode)
+                bits.push(0,1,0,0);
+                
+                // Character count (8 bits for version 1-9)
+                for (let i = 7; i >= 0; i--) {
+                    bits.push((length >> i) & 1);
+                }
+                
+                // Data bytes
+                for (let i = 0; i < text.length; i++) {
+                    const code = text.charCodeAt(i);
+                    for (let j = 7; j >= 0; j--) {
+                        bits.push((code >> j) & 1);
+                    }
+                }
+                
+                // Terminator
+                bits.push(0,0,0,0);
+                
+                // Pad to make length multiple of 8
+                while (bits.length % 8 !== 0) {
+                    bits.push(0);
+                }
+                
+                // Add padding bytes (alternating pattern: 11101100 and 00010001)
+                const padBytes = Math.ceil((152 - bits.length / 8) / 8) * 8;
+                const padPattern1 = [1,1,1,0,1,1,0,0];
+                const padPattern2 = [0,0,0,1,0,0,0,1];
+                for (let i = 0; i < padBytes; i++) {
+                    const pattern = i % 2 === 0 ? padPattern1 : padPattern2;
+                    bits.push(...pattern);
+                }
+                
+                return bits;
+            };
+
+            QRCode.prototype.selectVersion = function(bitLength) {
+                if (bitLength <= 152) return 1;
+                if (bitLength <= 272) return 2;
+                return 1; // Default to version 1
+            };
+
+            QRCode.prototype.addPatterns = function() {
+                const size = this.modules.length;
+                
+                // Finder patterns
+                const finders = [[0,0], [0, size-7], [size-7, 0]];
+                finders.forEach(([x, y]) => {
+                    for (let i = 0; i < 7; i++) {
+                        for (let j = 0; j < 7; j++) {
+                            const isDark = (i === 0 || i === 6 || j === 0 || j === 6) ||
+                                         (i >= 2 && i <= 4 && j >= 2 && j <= 4);
+                            this.modules[x + i][y + j] = isDark;
+                        }
+                    }
+                });
+                
+                // Separators
+                for (let i = 0; i < 8; i++) {
+                    this.modules[7][i] = false;
+                    this.modules[i][7] = false;
+                    this.modules[size-8][i] = false;
+                    this.modules[size-1-i][7] = false;
+                    this.modules[7][size-1-i] = false;
+                    this.modules[size-1-i][size-8] = false;
+                }
+                
+                // Timing patterns
+                for (let i = 8; i < size - 8; i++) {
+                    this.modules[6][i] = i % 2 === 0;
+                    this.modules[i][6] = i % 2 === 0;
+                }
+                
+                // Dark module
+                this.modules[8][size-8] = true;
+                
+                // Format info area (reserved)
+                for (let i = 0; i < 9; i++) {
+                    if (this.modules[8][i] === null) this.modules[8][i] = null;
+                    if (this.modules[i][8] === null) this.modules[i][8] = null;
+                }
+                this.modules[8][8] = null; // Will be set by format info
+            };
+
+            QRCode.prototype.placeData = function(dataBits) {
+                const size = this.modules.length;
+                let bitIndex = 0;
+                let direction = -1;
+                let row = size - 1;
+                
+                for (let col = size - 1; col >= 0; col -= 2) {
+                    if (col === 6) col--;
+                    if (col < 0) break;
+                    
+                    for (let i = 0; i < size; i++) {
+                        const currentRow = row + (direction === 1 ? -i : i);
+                        if (currentRow < 0 || currentRow >= size) continue;
+                        
+                        for (let c = 0; c < 2; c++) {
+                            const currentCol = col - c;
+                            if (currentCol < 0) break;
+                            if (this.modules[currentRow][currentCol] !== null) continue;
+                            
+                            if (bitIndex < dataBits.length) {
+                                this.modules[currentRow][currentCol] = dataBits[bitIndex] === 1;
+                                bitIndex++;
+                            } else {
+                                this.modules[currentRow][currentCol] = false;
+                            }
+                        }
+                    }
+                    
+                    direction *= -1;
+                    row += direction;
+                }
+            };
+
+            QRCode.prototype.applyMask = function() {
+                // Mask pattern 0 (XOR with (row + col) % 2 === 0)
+                const size = this.modules.length;
+                
+                // Apply mask to data modules
+                for (let row = 0; row < size; row++) {
+                    for (let col = 0; col < size; col++) {
+                        if (this.modules[row][col] !== null && 
+                            !this.isReserved(row, col, size)) {
+                            const shouldInvert = (row + col) % 2 === 0;
+                            if (shouldInvert) {
+                                this.modules[row][col] = !this.modules[row][col];
+                            }
+                        }
+                    }
+                }
+                
+                // Format info (mask pattern 0, error correction M = 01)
+                // Format: [EC Level: 01][Mask: 000] = 01000 = 0x08
+                // BCH(0x08) = 0x537
+                const formatBits = [0,1,0,1,0,0,1,1,0,1,1,1,0,1,1];
+                
+                // Top-left format area
+                const positions = [
+                    [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],
+                    [8,7],[8,8],
+                    [7,8],
+                    [5,8],[4,8],[3,8],[2,8],[1,8],[0,8]
+                ];
+                positions.forEach(([r, c], i) => {
+                    if (this.modules[r][c] === null) {
+                        this.modules[r][c] = formatBits[i] === 1;
+                    }
+                });
+                
+                // Top-right format area
+                for (let i = 0; i < 7; i++) {
+                    if (this.modules[8][size - 1 - i] === null) {
+                        this.modules[8][size - 1 - i] = formatBits[i] === 1;
+                    }
+                }
+                
+                // Bottom-left format area
+                for (let i = 0; i < 8; i++) {
+                    if (this.modules[size - 1 - i][8] === null) {
+                        this.modules[size - 1 - i][8] = formatBits[i] === 1;
+                    }
+                }
+                
+                // Fill any remaining nulls
+                for (let row = 0; row < size; row++) {
+                    for (let col = 0; col < size; col++) {
+                        if (this.modules[row][col] === null) {
+                            this.modules[row][col] = false;
+                        }
+                    }
+                }
+            };
+
+            QRCode.prototype.isReserved = function(row, col, size) {
+                // Finder patterns
+                if ((row < 9 && col < 9) || 
+                    (row < 9 && col >= size - 8) || 
+                    (row >= size - 8 && col < 9)) {
+                    return true;
+                }
+                // Timing patterns
+                if (row === 6 || col === 6) return true;
+                // Dark module
+                if (row === 8 && col === size - 8) return true;
+                return false;
+            };
+
+            QRCode.prototype.toCanvas = function(canvas) {
+                const ctx = canvas.getContext('2d');
+                const size = this.modules.length;
+                const cellSize = Math.floor(canvas.width / size);
+                const offset = (canvas.width - (size * cellSize)) / 2;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#000000';
+                for (let row = 0; row < size; row++) {
+                    for (let col = 0; col < size; col++) {
+                        if (this.modules[row][col]) {
+                            ctx.fillRect(
+                                offset + col * cellSize,
+                                offset + row * cellSize,
+                                cellSize,
+                                cellSize
+                            );
+                        }
+                    }
+                }
+            };
+
+            window.QRCode = QRCode;
+        })();
+
+        // Application code
+        const actions = [
+            { label: 'Register/Update Voter Registration (English)', url: 'https://example.org/voter/registration/en' },
+            { label: 'Registrar/Actualizar Registro de Votantes (Español)', url: 'https://example.org/voter/registration/es' },
+            { label: 'Request Mail-In Registration for up to 5 (English)', url: 'https://example.org/voter/mail-request/en' },
+            { label: 'Solicitar Registro por Correo para hasta 5 (Español)', url: 'https://example.org/voter/mail-request/es' },
+            { label: 'Donate to Campaign', url: 'https://example.org/donate' },
+            { label: 'Request Yard Sign', url: 'https://example.org/signs/yard' },
+            { label: 'Request Window Display Sign', url: 'https://example.org/signs/window' },
+            { label: 'Apply to Volunteer', url: 'https://example.org/volunteer' },
+            { label: 'Subscribe to Weekly Newsletter', url: 'https://example.org/newsletter/weekly' },
+            { label: 'Follow Facebook (English)', url: 'https://facebook.com/ExampleCampaignEN' },
+            { label: 'Seguir Facebook (Español)', url: 'https://facebook.com/ExampleCampaignES' }
+        ];
+
+        const grid = document.querySelector('.actions-grid');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalQr = document.getElementById('modal-qr');
+        const modalUrl = document.getElementById('modal-url');
+        const openLinkBtn = document.getElementById('open-link-btn');
+        const copyLinkBtn = document.getElementById('copy-link-btn');
+        const downloadQrBtn = document.getElementById('download-qr-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const toast = document.getElementById('toast');
+
+        let currentAction = null;
+        let focusableElements = [];
+        let firstFocusable = null;
+        let lastFocusable = null;
+
+        function generateQRCode(url, canvas, size) {
+            const qr = new QRCode(url, size);
+            canvas.width = size;
+            canvas.height = size;
+            qr.toCanvas(canvas);
+        }
+
+        function createActionCard(action, index) {
+            const card = document.createElement('div');
+            card.className = 'action-card';
+            card.setAttribute('role', 'listitem');
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('aria-label', `${action.label} - Click to view QR code`);
+            
+            const thumbnail = document.createElement('canvas');
+            thumbnail.className = 'qr-thumbnail';
+            thumbnail.setAttribute('aria-hidden', 'true');
+            
+            const label = document.createElement('div');
+            label.className = 'action-label';
+            label.textContent = action.label;
+            
+            card.appendChild(thumbnail);
+            card.appendChild(label);
+            
+            generateQRCode(action.url, thumbnail, 100);
+            
+            card.addEventListener('click', () => openModal(action));
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openModal(action);
+                }
+            });
+            
+            grid.appendChild(card);
+        }
+
+        function openModal(action) {
+            currentAction = action;
+            modalTitle.textContent = action.label;
+            modalUrl.textContent = action.url;
+            openLinkBtn.href = action.url;
+            
+            const viewportWidth = window.innerWidth;
+            const qrSize = Math.min(Math.floor(viewportWidth * 0.9), 400);
+            generateQRCode(action.url, modalQr, qrSize);
+            
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            
+            // Focus trap setup
+            focusableElements = modal.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            firstFocusable = focusableElements[0];
+            lastFocusable = focusableElements[focusableElements.length - 1];
+            
+            // Focus first element
+            setTimeout(() => firstFocusable.focus(), 100);
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            currentAction = null;
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(text).then(() => true);
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    return Promise.resolve(success);
+                } catch (err) {
+                    document.body.removeChild(textarea);
+                    return Promise.resolve(false);
+                }
+            }
+        }
+
+        function downloadQR() {
+            if (!currentAction) return;
+            
+            const link = document.createElement('a');
+            link.download = `qr-${currentAction.label.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
+            link.href = modalQr.toDataURL('image/png');
+            link.click();
+        }
+
+        // Event listeners
+        closeBtn.addEventListener('click', closeModal);
+        
+        openLinkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = currentAction.url;
+        });
+
+        copyLinkBtn.addEventListener('click', () => {
+            if (currentAction) {
+                copyToClipboard(currentAction.url).then((success) => {
+                    if (success) {
+                        showToast('Link copied to clipboard!');
+                    } else {
+                        showToast('Failed to copy link');
+                    }
+                });
+            }
+        });
+
+        downloadQrBtn.addEventListener('click', downloadQR);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (modal.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                } else if (e.key === 'Tab') {
+                    // Focus trap
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstFocusable) {
+                            e.preventDefault();
+                            lastFocusable.focus();
+                        }
+                    } else {
+                        if (document.activeElement === lastFocusable) {
+                            e.preventDefault();
+                            firstFocusable.focus();
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pinch-to-zoom support (touch events)
+        let initialDistance = 0;
+        let initialScale = 1;
+        let currentScale = 1;
+
+        modalQr.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = Math.hypot(
+                    touch2.clientX - touch1.clientX,
+                    touch2.clientY - touch1.clientY
+                );
+                initialScale = currentScale;
+            }
+        });
+
+        modalQr.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.hypot(
+                    touch2.clientX - touch1.clientX,
+                    touch2.clientY - touch1.clientY
+                );
+                currentScale = initialScale * (currentDistance / initialDistance);
+                currentScale = Math.max(1, Math.min(currentScale, 3));
+                modalQr.style.transform = `scale(${currentScale})`;
+            }
+        });
+
+        modalQr.addEventListener('touchend', () => {
+            if (currentScale < 1.1) {
+                currentScale = 1;
+                modalQr.style.transform = 'scale(1)';
+            }
+        });
+
+        // Initialize
+        actions.forEach((action, index) => {
+            createActionCard(action, index);
+        });
+    </script>
+</body>
+</html>
+
