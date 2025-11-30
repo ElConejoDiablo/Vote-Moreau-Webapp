@@ -796,10 +796,18 @@
         let firstFocusable = null;
         let lastFocusable = null;
 
-        function generateQRCode(url, canvas, size) {
-            const qr = new QRCode(url, size);
+        // Wrapper around the QRCode implementation so all QR generation
+        // (on-screen, download, sharing) goes through a single code path.
+        // - url: string that will be encoded in the QR
+        // - canvas: target <canvas> element (visible or off-screen)
+        // - options.size: output size in pixels (canvas will be size x size)
+        function generateQRCodeForUrl(url, canvas, options = {}) {
+            const size = options.size || 400; // reasonable on-screen default
+
             canvas.width = size;
             canvas.height = size;
+
+            const qr = new QRCode(url, size);
             qr.toCanvas(canvas);
         }
 
@@ -866,7 +874,8 @@
             
             const viewportWidth = window.innerWidth;
             const qrSize = Math.min(Math.floor(viewportWidth * 0.9), 400);
-            generateQRCode(action.url, modalQr, qrSize);
+            // On-screen QR: responsive up to 400px for fast scanning
+            generateQRCodeForUrl(action.url, modalQr, { size: qrSize });
             
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
@@ -924,10 +933,15 @@
 
         function downloadQR() {
             if (!currentAction) return;
-            
+
+            // Generate a high-resolution QR off-screen for printing
+            const size = 1024;
+            const offscreen = document.createElement('canvas');
+            generateQRCodeForUrl(currentAction.url, offscreen, { size });
+
             const link = document.createElement('a');
             link.download = `qr-${currentAction.label.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
-            link.href = modalQr.toDataURL('image/png');
+            link.href = offscreen.toDataURL('image/png');
             link.click();
         }
 
