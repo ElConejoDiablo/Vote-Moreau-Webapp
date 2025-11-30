@@ -384,6 +384,223 @@
             white-space: nowrap;
             border-width: 0;
         }
+
+        .springboard {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 1rem 4rem;
+        }
+
+        .springboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            justify-items: center;
+        }
+
+        @media (min-width: 480px) {
+            .springboard-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 768px) {
+            .springboard-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .springboard-grid {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
+        }
+
+        .springboard-tile {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .springboard-tile__button {
+            width: 100%;
+            min-height: 110px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .springboard-tile__button:focus-visible,
+        .springboard-tile__button:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .springboard-tile__icon {
+            width: 72px;
+            height: 72px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+        }
+
+        .springboard-tile__icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .springboard-tile__label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .springboard-tile--folder .springboard-tile__button {
+            background: rgba(26, 84, 144, 0.05);
+        }
+
+        .folder-sheet {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1100;
+        }
+
+        .folder-sheet.open {
+            display: flex;
+        }
+
+        .folder-sheet__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .folder-sheet__content {
+            position: relative;
+            width: 100%;
+            background: var(--bg);
+            border-radius: 24px 24px 0 0;
+            padding: 1rem 1.25rem 1.5rem;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .folder-sheet__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .folder-sheet__title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .folder-sheet__close {
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+
+        .folder-sheet__body {
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .folder-sheet__grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 480px) {
+            .folder-sheet__grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .folder-sheet__thumb-close {
+            width: 100%;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .folder-sheet {
+                align-items: center;
+            }
+
+            .folder-sheet__content {
+                border-radius: 16px;
+                max-width: 520px;
+            }
+        }
+
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 520px;
+            width: 90vw;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .modal-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-close-thumb {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 480px) {
+            .modal-qr {
+                max-width: 320px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .springboard-tile__button,
+            .folder-sheet__content,
+            .modal-content {
+                transition: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -399,26 +616,8 @@
         </div>
     </header>
     
-    <main class="sections" aria-label="Campaign action groups">
-        <section class="action-section" aria-labelledby="section-voter">
-            <h2 class="section-title" id="section-voter">Information for Voters</h2>
-            <div class="actions-grid" id="grid-voter" role="list" aria-label="Voter registration actions"></div>
-        </section>
-
-        <section class="action-section" aria-labelledby="section-forms">
-            <h2 class="section-title" id="section-forms">Forms &amp; Requests</h2>
-            <div class="actions-grid" id="grid-forms" role="list" aria-label="Forms and request actions"></div>
-        </section>
-
-        <section class="action-section" aria-labelledby="section-social">
-            <h2 class="section-title" id="section-social">Social Media</h2>
-            <div class="actions-grid" id="grid-social" role="list" aria-label="Social media actions"></div>
-        </section>
-
-        <section class="action-section" aria-labelledby="section-contacts">
-            <h2 class="section-title" id="section-contacts">Contacts &amp; Offices</h2>
-            <div class="actions-grid" id="grid-contacts" role="list" aria-label="Contact actions"></div>
-        </section>
+    <main class="springboard" aria-label="SpringBoard home screen">
+        <div class="springboard-grid" id="springboard-grid" role="grid" aria-label="App grid"></div>
     </main>
 
     <div class="modal" id="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true" aria-hidden="true">
@@ -431,12 +630,27 @@
                 <img class="modal-qr" id="modal-qr" aria-label="QR code" alt="QR code for selected action" />
             </div>
             <div class="modal-url" id="modal-url" aria-label="URL"></div>
-            <div class="modal-actions">
+            <div class="modal-actions" role="group" aria-label="QR actions">
                 <a href="#" class="btn" id="open-link-btn" target="_blank" rel="noopener" aria-label="Open link">Open Link</a>
-                <button class="btn btn-secondary" id="share-link-btn" aria-label="Share link and QR code">Share</button>
-                <button class="btn btn-secondary" id="copy-link-btn" aria-label="Copy link to clipboard">Copy Link</button>
-                <button class="btn btn-secondary" id="download-qr-btn" aria-label="Download QR code as PNG">Download QR</button>
+                <button class="btn btn-secondary" id="share-link-btn" type="button" aria-label="Share link and QR code">Share</button>
+                <button class="btn btn-secondary" id="copy-link-btn" type="button" aria-label="Copy link to clipboard">Copy Link</button>
+                <button class="btn btn-secondary" id="download-qr-btn" type="button" aria-label="Download QR code as PNG">Download QR</button>
+                <button class="btn btn-secondary modal-close-thumb" id="modal-done-btn" type="button" aria-label="Close QR modal">Done</button>
             </div>
+        </div>
+    </div>
+
+    <div class="folder-sheet" id="folder-sheet" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="folder-sheet__backdrop"></div>
+        <div class="folder-sheet__content" role="document">
+            <div class="folder-sheet__header">
+                <h2 class="folder-sheet__title" id="folder-title"></h2>
+                <button class="folder-sheet__close" id="folder-close-btn" type="button" aria-label="Close folder">×</button>
+            </div>
+            <div class="folder-sheet__body">
+                <div class="folder-sheet__grid" id="folder-grid" role="grid" aria-label="Folder items"></div>
+            </div>
+            <button class="btn folder-sheet__thumb-close" id="folder-close-thumb" type="button" aria-label="Close folder (thumb button)">Close Folder</button>
         </div>
     </div>
 
@@ -498,8 +712,51 @@
             contactFayetteEn: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h8M10 7h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
             contactFayetteEs: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h8M10 7h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
             contactCraigEn: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="3" width="10" height="18" rx="3" stroke="currentColor" stroke-width="2"/><rect x="10" y="16" width="4" height="1.5" rx="0.5" fill="currentColor"/><circle cx="12" cy="6" r="1" fill="currentColor"/><path d="M12 11h-2v-2h4v2h-2z" fill="currentColor"/></svg>',
-            contactCraigEs: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="3" width="10" height="18" rx="3" stroke="currentColor" stroke-width="2"/><rect x="10" y="16" width="4" height="1.5" rx="0.5" fill="currentColor"/><circle cx="12" cy="6" r="1" fill="currentColor"/><path d="M12 11h-2v-2h4v2h-2z" fill="currentColor"/></svg>'
+            contactCraigEs: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="3" width="10" height="18" rx="3" stroke="currentColor" stroke-width="2"/><rect x="10" y="16" width="4" height="1.5" rx="0.5" fill="currentColor"/><circle cx="12" cy="6" r="1" fill="currentColor"/><path d="M12 11h-2v-2h4v2h-2z" fill="currentColor"/></svg>',
+            folderInfo: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 12h10M7 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+            folderForms: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h8M8 16h5M8 8h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+            folderSocial: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="13" r="2" stroke="currentColor" stroke-width="2"/><path d="M12 13h3.5a1.5 1.5 0 110 3H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+            folderContacts: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 12h4M14 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="14" r="2" stroke="currentColor" stroke-width="2"/><path d="M5.5 18c.6-1.2 1.9-2 3.5-2s2.9.8 3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
         };
+
+        const folders = [
+            {
+                id: 'folder-info',
+                category: 'voter-registration',
+                icon: 'folderInfo',
+                label: {
+                    en: 'Information for Voters',
+                    es: 'Información para votantes'
+                }
+            },
+            {
+                id: 'folder-forms',
+                category: 'forms',
+                icon: 'folderForms',
+                label: {
+                    en: 'Forms & Requests',
+                    es: 'Formularios y solicitudes'
+                }
+            },
+            {
+                id: 'folder-social',
+                category: 'social',
+                icon: 'folderSocial',
+                label: {
+                    en: 'Social Media',
+                    es: 'Redes sociales'
+                }
+            },
+            {
+                id: 'folder-contacts',
+                category: 'contacts',
+                icon: 'folderContacts',
+                label: {
+                    en: 'Contacts & Offices',
+                    es: 'Contactos y oficinas'
+                }
+            }
+        ];
 
         // Application code
         const actions = [
@@ -548,10 +805,7 @@
             { label: 'Agregar a Contactos', url: '/craigmoreau.vcf', lang: 'es', icon: 'contactCraigEs', category: 'contacts' }
         ];
 
-        const voterGrid = document.getElementById('grid-voter');
-        const formsGrid = document.getElementById('grid-forms');
-        const socialGrid = document.getElementById('grid-social');
-        const contactsGrid = document.getElementById('grid-contacts');
+        const springboardGrid = document.getElementById('springboard-grid');
         const modal = document.getElementById('modal');
         const modalTitle = document.getElementById('modal-title');
         const modalQr = document.getElementById('modal-qr');
@@ -560,10 +814,15 @@
         const shareLinkBtn = document.getElementById('share-link-btn');
         const copyLinkBtn = document.getElementById('copy-link-btn');
         const downloadQrBtn = document.getElementById('download-qr-btn');
+        const modalDoneBtn = document.getElementById('modal-done-btn');
         const closeBtn = document.getElementById('close-btn');
         const toast = document.getElementById('toast');
         const languageToggle = document.getElementById('language-toggle');
-        const voterSectionTitle = document.getElementById('section-voter');
+        const folderSheet = document.getElementById('folder-sheet');
+        const folderTitle = document.getElementById('folder-title');
+        const folderGrid = document.getElementById('folder-grid');
+        const folderCloseBtn = document.getElementById('folder-close-btn');
+        const folderDoneBtn = document.getElementById('folder-close-thumb');
         
         // Get saved language preference or default to English
         let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
@@ -573,6 +832,11 @@
         let focusableElements = [];
         let firstFocusable = null;
         let lastFocusable = null;
+        let lastFocusTrigger = null;
+        let currentFolder = null;
+        let folderFocusableElements = [];
+        let firstFolderFocusable = null;
+        let lastFolderFocusable = null;
 
         // Wrapper for generating QR images for a given URL.
         // Uses an external QR code image service that encodes the URL as the QR payload.
@@ -628,63 +892,130 @@
             return `${base}#card-${id}`;
         }
 
-        function getFilteredActions(category) {
-            return actions.filter(action => action.lang === currentLanguage && action.category === category);
+        function getFolderLabel(folder) {
+            return folder.label[currentLanguage] || folder.label.en;
         }
 
-        function updateSectionTitles() {
-            voterSectionTitle.textContent = currentLanguage === 'es' ? 'Información para votantes' : 'Information for Voters';
+        function getLocalizedActions(filterFn = () => true) {
+            return actions.filter(action => action.lang === currentLanguage && filterFn(action));
         }
 
-        function renderActions() {
-            // Clear existing cards in each grid
-            voterGrid.innerHTML = '';
-            formsGrid.innerHTML = '';
-            socialGrid.innerHTML = '';
-            contactsGrid.innerHTML = '';
+        function renderSpringboard() {
+            springboardGrid.innerHTML = '';
+            springboardGrid.setAttribute('aria-busy', 'true');
 
-            getFilteredActions('voter-registration').forEach((action) => {
-                createActionCard(action, voterGrid);
+            folders.forEach(folder => {
+                const folderTile = createFolderTile(folder);
+                springboardGrid.appendChild(folderTile);
             });
-            getFilteredActions('forms').forEach((action) => {
-                createActionCard(action, formsGrid);
+
+            const looseActions = getLocalizedActions(action => !folders.some(folder => folder.category === action.category));
+            looseActions.forEach(action => {
+                springboardGrid.appendChild(createActionTile(action));
             });
-            getFilteredActions('social').forEach((action) => {
-                createActionCard(action, socialGrid);
-            });
-            getFilteredActions('contacts').forEach((action) => {
-                createActionCard(action, contactsGrid);
-            });
+
+            springboardGrid.setAttribute('aria-busy', 'false');
         }
 
-        function createActionCard(action, targetGrid) {
-            const card = document.createElement('div');
-            card.className = 'action-card';
-            card.setAttribute('role', 'listitem');
-            card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', `${action.label} - Click to view QR code`);
-            
-            const iconContainer = document.createElement('div');
-            iconContainer.className = 'action-icon';
-            iconContainer.setAttribute('aria-hidden', 'true');
-            iconContainer.innerHTML = icons[action.icon] || icons.register;
-            
-            const label = document.createElement('div');
-            label.className = 'action-label';
-            label.textContent = action.label;
-            
-            card.appendChild(iconContainer);
-            card.appendChild(label);
-            
-            card.addEventListener('click', () => openModal(action));
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openModal(action);
+        function createFolderTile(folder) {
+            const label = getFolderLabel(folder);
+            const tile = document.createElement('div');
+            tile.className = 'springboard-tile springboard-tile--folder';
+            tile.setAttribute('role', 'gridcell');
+
+            const button = document.createElement('button');
+            button.className = 'springboard-tile__button';
+            button.type = 'button';
+            button.setAttribute('aria-label', label);
+            button.dataset.folderId = folder.id;
+            button.innerHTML = `
+                <div class="springboard-tile__icon" aria-hidden="true">${icons[folder.icon] || ''}</div>
+                <div class="springboard-tile__label">${label}</div>
+            `;
+            button.addEventListener('click', () => openFolder(folder, button));
+
+            tile.appendChild(button);
+            return tile;
+        }
+
+        function createActionTile(action) {
+            const tile = document.createElement('div');
+            tile.className = 'springboard-tile';
+            tile.setAttribute('role', 'gridcell');
+
+            const button = document.createElement('button');
+            button.className = 'springboard-tile__button';
+            button.type = 'button';
+            button.setAttribute('aria-label', action.label);
+            button.innerHTML = `
+                <div class="springboard-tile__icon" aria-hidden="true">${icons[action.icon] || ''}</div>
+                <div class="springboard-tile__label">${action.label}</div>
+            `;
+            button.addEventListener('click', () => handleActionSelect(action, button));
+
+            tile.appendChild(button);
+            return tile;
+        }
+
+        function handleActionSelect(action, trigger) {
+            let originButton = trigger;
+            if (folderSheet.classList.contains('open') && currentFolder) {
+                const folderButton = springboardGrid.querySelector(`[data-folder-id="${currentFolder.id}"]`);
+                if (folderButton) {
+                    originButton = folderButton;
                 }
-            });
-            
-            targetGrid.appendChild(card);
+                closeFolder({ returnFocus: false });
+            }
+            lastFocusTrigger = originButton;
+            openModal(action);
+        }
+
+        function openFolder(folder, trigger) {
+            currentFolder = folder;
+            lastFocusTrigger = trigger;
+            folderTitle.textContent = getFolderLabel(folder);
+            const closeLabel = currentLanguage === 'es' ? 'Cerrar carpeta' : 'Close folder';
+            folderCloseBtn.setAttribute('aria-label', closeLabel);
+            folderDoneBtn.textContent = closeLabel;
+            folderDoneBtn.setAttribute('aria-label', closeLabel);
+            folderGrid.innerHTML = '';
+            const folderActions = getLocalizedActions(action => action.category === folder.category);
+
+            if (folderActions.length === 0) {
+                const emptyState = document.createElement('p');
+                emptyState.textContent = currentLanguage === 'es' ? 'No hay elementos en esta carpeta.' : 'No items in this folder yet.';
+                folderGrid.appendChild(emptyState);
+            } else {
+                folderActions.forEach(action => {
+                    folderGrid.appendChild(createActionTile(action));
+                });
+            }
+
+            folderSheet.classList.add('open');
+            folderSheet.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+
+            folderFocusableElements = folderSheet.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            firstFolderFocusable = folderFocusableElements[0];
+            lastFolderFocusable = folderFocusableElements[folderFocusableElements.length - 1];
+            setTimeout(() => firstFolderFocusable && firstFolderFocusable.focus(), 100);
+        }
+
+        function closeFolder({ returnFocus = true } = {}) {
+            if (!folderSheet.classList.contains('open')) return;
+
+            folderSheet.classList.remove('open');
+            folderSheet.setAttribute('aria-hidden', 'true');
+            folderGrid.innerHTML = '';
+            currentFolder = null;
+            folderFocusableElements = [];
+            document.body.style.overflow = modal.classList.contains('active') ? 'hidden' : '';
+
+            if (returnFocus && lastFocusTrigger) {
+                lastFocusTrigger.focus();
+            }
         }
 
         function openModal(action) {
@@ -692,6 +1023,9 @@
             modalTitle.textContent = action.label;
             modalUrl.textContent = action.url;
             openLinkBtn.href = action.url;
+            const doneLabel = currentLanguage === 'es' ? 'Listo' : 'Done';
+            modalDoneBtn.textContent = doneLabel;
+            modalDoneBtn.setAttribute('aria-label', doneLabel);
             
             const viewportWidth = window.innerWidth;
             const qrSize = Math.min(Math.floor(viewportWidth * 0.9), 400);
@@ -717,11 +1051,17 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() {
+        function closeModal({ returnFocus = true } = {}) {
+            if (!modal.classList.contains('active')) return;
+
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            document.body.style.overflow = folderSheet.classList.contains('open') ? 'hidden' : '';
             currentAction = null;
+
+            if (returnFocus && lastFocusTrigger) {
+                lastFocusTrigger.focus();
+            }
         }
 
         function showToast(message) {
@@ -771,7 +1111,8 @@
         }
 
         // Event listeners
-        closeBtn.addEventListener('click', closeModal);
+        closeBtn.addEventListener('click', () => closeModal());
+        modalDoneBtn.addEventListener('click', () => closeModal());
         
         openLinkBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -821,24 +1162,41 @@
         });
 
         downloadQrBtn.addEventListener('click', downloadQR);
+        folderCloseBtn.addEventListener('click', () => closeFolder());
+        folderDoneBtn.addEventListener('click', () => closeFolder());
+        folderSheet.querySelector('.folder-sheet__backdrop').addEventListener('click', () => closeFolder());
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (modal.classList.contains('active')) {
                 if (e.key === 'Escape') {
                     closeModal();
-                } else if (e.key === 'Tab') {
-                    // Focus trap
+                } else if (e.key === 'Tab' && focusableElements.length) {
                     if (e.shiftKey) {
                         if (document.activeElement === firstFocusable) {
                             e.preventDefault();
                             lastFocusable.focus();
                         }
-                    } else {
-                        if (document.activeElement === lastFocusable) {
+                    } else if (document.activeElement === lastFocusable) {
+                        e.preventDefault();
+                        firstFocusable.focus();
+                    }
+                }
+                return;
+            }
+
+            if (folderSheet.classList.contains('open')) {
+                if (e.key === 'Escape') {
+                    closeFolder();
+                } else if (e.key === 'Tab' && folderFocusableElements.length) {
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstFolderFocusable) {
                             e.preventDefault();
-                            firstFocusable.focus();
+                            lastFolderFocusable.focus();
                         }
+                    } else if (document.activeElement === lastFolderFocusable) {
+                        e.preventDefault();
+                        firstFolderFocusable.focus();
                     }
                 }
             }
@@ -888,18 +1246,19 @@
         languageToggle.addEventListener('change', (e) => {
             currentLanguage = e.target.checked ? 'es' : 'en';
             localStorage.setItem('preferredLanguage', currentLanguage);
-            renderActions();
-            updateSectionTitles();
-            
-            // Close modal if open when switching languages
+            renderSpringboard();
+
+            if (folderSheet.classList.contains('open')) {
+                closeFolder({ returnFocus: false });
+            }
+
             if (modal.classList.contains('active')) {
-                closeModal();
+                closeModal({ returnFocus: false });
             }
         });
 
         // Initialize
-        updateSectionTitles();
-        renderActions();
+        renderSpringboard();
     </script>
 </body>
 </html>
