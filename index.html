@@ -573,6 +573,32 @@
             imgElement.height = clampedSize;
         }
 
+        // Build a unique QR payload string for a given card action.
+        // This stays stable for that card even if multiple cards share the same
+        // destination URL today, by appending a fragment with a per-card id.
+        // Scanners will see a unique URL, but servers ignore the fragment.
+        function slugifyForId(label) {
+            return label
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        function getQrPayloadForAction(action) {
+            const base = action.url;
+            const rawId = action.id || slugifyForId(action.label) || 'card';
+            const id = rawId.toLowerCase();
+
+            // If the URL already has a fragment, just append a dash + id.
+            if (base.includes('#')) {
+                return `${base}-${id}`;
+            }
+
+            // Otherwise, add a #card-<id> fragment. This makes the QR content
+            // unique per card, but the request to the external site is the same.
+            return `${base}#card-${id}`;
+        }
+
         function getFilteredActions(category) {
             return actions.filter(action => action.lang === currentLanguage && action.category === category);
         }
@@ -636,8 +662,10 @@
             
             const viewportWidth = window.innerWidth;
             const qrSize = Math.min(Math.floor(viewportWidth * 0.9), 400);
-            // On-screen QR: responsive up to 400px for fast scanning
-            generateQRCodeForUrl(action.url, modalQr, { size: qrSize });
+            // On-screen QR: responsive up to 400px for fast scanning.
+            // Use a per-card QR payload so each card has a unique, stable QR.
+            const qrPayload = getQrPayloadForAction(action);
+            generateQRCodeForUrl(qrPayload, modalQr, { size: qrSize });
             
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
@@ -696,9 +724,11 @@
         function downloadQR() {
             if (!currentAction) return;
 
-            // Use a high-resolution QR image from the external service for printing
+            // Use a high-resolution QR image from the external service for printing.
+            // The payload matches the on-screen QR (unique per card).
             const size = 1024;
-            const encoded = encodeURIComponent(currentAction.url);
+            const qrPayload = getQrPayloadForAction(currentAction);
+            const encoded = encodeURIComponent(qrPayload);
             const downloadUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=4`;
 
             const link = document.createElement('a');
