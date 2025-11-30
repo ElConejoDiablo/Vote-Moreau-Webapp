@@ -848,6 +848,11 @@
 
         const ICON_BASE_PATH = '/icons';
 
+        const explicitIconMap = {
+            contactCraigEn: 'craig.png',
+            contactCraigEs: 'craig.png'
+        };
+
         function iconKeyToFilename(key) {
             return key
                 .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
@@ -856,7 +861,11 @@
 
         function getIconSrc(iconKey) {
             if (!iconKey) return '';
-            return `${ICON_BASE_PATH}/${iconKeyToFilename(iconKey)}`;
+            const file =
+                explicitIconMap[iconKey] !== undefined
+                    ? explicitIconMap[iconKey]
+                    : iconKeyToFilename(iconKey);
+            return `${ICON_BASE_PATH}/${file}`;
         }
 
         const folders = [
