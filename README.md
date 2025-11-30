@@ -48,7 +48,7 @@ The site is protected by a password that is set via the `SITE_PASSWORD` environm
 
 - `index.html` - Main application (self-contained)
 - `password.html` - Password entry page
-- `edge/auth.js` - Edge function that checks the auth cookie before serving `index.html`
+- `api/edge.js` - Node function that checks the auth cookie before serving `index.html`
 - `api/auth.js` - Authentication API endpoint
 - `vercel.json` - Vercel configuration
 
@@ -69,9 +69,9 @@ If password protection is not working:
    - After setting/changing environment variables, trigger a new deployment
    - Environment variables are only available after a new deployment
 
-4. **Check Edge Function:**
-   - The `edge/auth.js` file runs before `index.html` is served
-   - Every request is routed through it via `vercel.json`
+4. **Check Auth Function:**
+   - The `api/edge.js` function is invoked for every request and serves `index.html`
+   - `vercel.json` routes all traffic (aside from `/password.html` and `/api/*`) through this function
 
 5. **Client-side Fallback:**
    - A client-side check is included as a fallback
