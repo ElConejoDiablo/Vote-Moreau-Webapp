@@ -387,6 +387,7 @@
             <div class="modal-url" id="modal-url" aria-label="URL"></div>
             <div class="modal-actions">
                 <a href="#" class="btn" id="open-link-btn" target="_self" aria-label="Open link">Open Link</a>
+                <button class="btn btn-secondary" id="share-link-btn" aria-label="Share link and QR code">Share</button>
                 <button class="btn btn-secondary" id="copy-link-btn" aria-label="Copy link to clipboard">Copy Link</button>
                 <button class="btn btn-secondary" id="download-qr-btn" aria-label="Download QR code as PNG">Download QR</button>
             </div>
@@ -697,6 +698,7 @@
         const modalQr = document.getElementById('modal-qr');
         const modalUrl = document.getElementById('modal-url');
         const openLinkBtn = document.getElementById('open-link-btn');
+        const shareLinkBtn = document.getElementById('share-link-btn');
         const copyLinkBtn = document.getElementById('copy-link-btn');
         const downloadQrBtn = document.getElementById('download-qr-btn');
         const closeBtn = document.getElementById('close-btn');
@@ -842,6 +844,46 @@
         openLinkBtn.addEventListener('click', (e) => {
             e.preventDefault();
             window.location.href = currentAction.url;
+        });
+
+        shareLinkBtn.addEventListener('click', async () => {
+            if (!currentAction) return;
+            const shareText = `Check out this action: ${currentAction.url}`;
+            const sharePayload = {
+                title: currentAction.label,
+                text: shareText,
+                url: currentAction.url
+            };
+
+            if (navigator.share) {
+                try {
+                    let blob;
+                    try {
+                        blob = await new Promise((resolve) => modalQr.toBlob(resolve, 'image/png'));
+                    } catch {
+                        blob = null;
+                    }
+
+                    if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], 'qr.png', { type: 'image/png' })] })) {
+                        const qrFile = new File([blob], 'qr.png', { type: 'image/png' });
+                        sharePayload.files = [qrFile];
+                    }
+
+                    await navigator.share(sharePayload);
+                    showToast('Share dialog opened');
+                    return;
+                } catch (error) {
+                    console.error('Share failed', error);
+                }
+            }
+
+            copyToClipboard(currentAction.url).then((success) => {
+                if (success) {
+                    showToast('Link copied to clipboard! Use it to share.');
+                } else {
+                    showToast('Unable to share link');
+                }
+            });
         });
 
         copyLinkBtn.addEventListener('click', () => {
