@@ -428,7 +428,7 @@
                 <button class="close-btn" id="close-btn" aria-label="Close modal">×</button>
             </div>
             <div class="modal-qr-container" id="modal-qr-container">
-                <canvas class="modal-qr" id="modal-qr" aria-label="QR code"></canvas>
+                <img class="modal-qr" id="modal-qr" aria-label="QR code" alt="QR code for selected action" />
             </div>
             <div class="modal-url" id="modal-url" aria-label="URL"></div>
             <div class="modal-actions">
@@ -457,248 +457,9 @@
             }
         })();
 
-        // Lightweight QR Code Generator (embedded, self-contained)
-        (function() {
-            'use strict';
-
-            function QRCode(text, size) {
-                this.text = text;
-                this.size = size || 256;
-                this.modules = [];
-                this.generate();
-            }
-
-            QRCode.prototype.generate = function() {
-                const dataBits = this.encodeData(this.text);
-                const version = this.selectVersion(dataBits.length);
-                const size = 21 + (version - 1) * 4;
-                this.modules = Array(size).fill(null).map(() => Array(size).fill(null));
-                this.addPatterns();
-                this.placeData(dataBits);
-                this.applyMask();
-            };
-
-            QRCode.prototype.encodeData = function(text) {
-                const mode = 4; // Byte mode
-                const length = text.length;
-                let bits = [];
-                
-                // Mode indicator (4 bits for byte mode)
-                bits.push(0,1,0,0);
-                
-                // Character count (8 bits for version 1-9)
-                for (let i = 7; i >= 0; i--) {
-                    bits.push((length >> i) & 1);
-                }
-                
-                // Data bytes
-                for (let i = 0; i < text.length; i++) {
-                    const code = text.charCodeAt(i);
-                    for (let j = 7; j >= 0; j--) {
-                        bits.push((code >> j) & 1);
-                    }
-                }
-                
-                // Terminator
-                bits.push(0,0,0,0);
-                
-                // Pad to make length multiple of 8
-                while (bits.length % 8 !== 0) {
-                    bits.push(0);
-                }
-                
-                // Add padding bytes (alternating pattern: 11101100 and 00010001)
-                const padBytes = Math.ceil((152 - bits.length / 8) / 8) * 8;
-                const padPattern1 = [1,1,1,0,1,1,0,0];
-                const padPattern2 = [0,0,0,1,0,0,0,1];
-                for (let i = 0; i < padBytes; i++) {
-                    const pattern = i % 2 === 0 ? padPattern1 : padPattern2;
-                    bits.push(...pattern);
-                }
-                
-                return bits;
-            };
-
-            QRCode.prototype.selectVersion = function(bitLength) {
-                if (bitLength <= 152) return 1;
-                if (bitLength <= 272) return 2;
-                return 1; // Default to version 1
-            };
-
-            QRCode.prototype.addPatterns = function() {
-                const size = this.modules.length;
-                
-                // Finder patterns
-                const finders = [[0,0], [0, size-7], [size-7, 0]];
-                finders.forEach(([x, y]) => {
-                    for (let i = 0; i < 7; i++) {
-                        for (let j = 0; j < 7; j++) {
-                            const isDark = (i === 0 || i === 6 || j === 0 || j === 6) ||
-                                         (i >= 2 && i <= 4 && j >= 2 && j <= 4);
-                            this.modules[x + i][y + j] = isDark;
-                        }
-                    }
-                });
-                
-                // Separators
-                for (let i = 0; i < 8; i++) {
-                    this.modules[7][i] = false;
-                    this.modules[i][7] = false;
-                    this.modules[size-8][i] = false;
-                    this.modules[size-1-i][7] = false;
-                    this.modules[7][size-1-i] = false;
-                    this.modules[size-1-i][size-8] = false;
-                }
-                
-                // Timing patterns
-                for (let i = 8; i < size - 8; i++) {
-                    this.modules[6][i] = i % 2 === 0;
-                    this.modules[i][6] = i % 2 === 0;
-                }
-                
-                // Dark module
-                this.modules[8][size-8] = true;
-                
-                // Format info area (reserved)
-                for (let i = 0; i < 9; i++) {
-                    if (this.modules[8][i] === null) this.modules[8][i] = null;
-                    if (this.modules[i][8] === null) this.modules[i][8] = null;
-                }
-                this.modules[8][8] = null; // Will be set by format info
-            };
-
-            QRCode.prototype.placeData = function(dataBits) {
-                const size = this.modules.length;
-                let bitIndex = 0;
-                let direction = -1;
-                let row = size - 1;
-                
-                for (let col = size - 1; col >= 0; col -= 2) {
-                    if (col === 6) col--;
-                    if (col < 0) break;
-                    
-                    for (let i = 0; i < size; i++) {
-                        const currentRow = row + (direction === 1 ? -i : i);
-                        if (currentRow < 0 || currentRow >= size) continue;
-                        
-                        for (let c = 0; c < 2; c++) {
-                            const currentCol = col - c;
-                            if (currentCol < 0) break;
-                            if (this.modules[currentRow][currentCol] !== null) continue;
-                            
-                            if (bitIndex < dataBits.length) {
-                                this.modules[currentRow][currentCol] = dataBits[bitIndex] === 1;
-                                bitIndex++;
-                            } else {
-                                this.modules[currentRow][currentCol] = false;
-                            }
-                        }
-                    }
-                    
-                    direction *= -1;
-                    row += direction;
-                }
-            };
-
-            QRCode.prototype.applyMask = function() {
-                // Mask pattern 0 (XOR with (row + col) % 2 === 0)
-                const size = this.modules.length;
-                
-                // Apply mask to data modules
-                for (let row = 0; row < size; row++) {
-                    for (let col = 0; col < size; col++) {
-                        if (this.modules[row][col] !== null && 
-                            !this.isReserved(row, col, size)) {
-                            const shouldInvert = (row + col) % 2 === 0;
-                            if (shouldInvert) {
-                                this.modules[row][col] = !this.modules[row][col];
-                            }
-                        }
-                    }
-                }
-                
-                // Format info (mask pattern 0, error correction M = 01)
-                // Format: [EC Level: 01][Mask: 000] = 01000 = 0x08
-                // BCH(0x08) = 0x537
-                const formatBits = [0,1,0,1,0,0,1,1,0,1,1,1,0,1,1];
-                
-                // Top-left format area
-                const positions = [
-                    [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],
-                    [8,7],[8,8],
-                    [7,8],
-                    [5,8],[4,8],[3,8],[2,8],[1,8],[0,8]
-                ];
-                positions.forEach(([r, c], i) => {
-                    if (this.modules[r][c] === null) {
-                        this.modules[r][c] = formatBits[i] === 1;
-                    }
-                });
-                
-                // Top-right format area
-                for (let i = 0; i < 7; i++) {
-                    if (this.modules[8][size - 1 - i] === null) {
-                        this.modules[8][size - 1 - i] = formatBits[i] === 1;
-                    }
-                }
-                
-                // Bottom-left format area
-                for (let i = 0; i < 8; i++) {
-                    if (this.modules[size - 1 - i][8] === null) {
-                        this.modules[size - 1 - i][8] = formatBits[i] === 1;
-                    }
-                }
-                
-                // Fill any remaining nulls
-                for (let row = 0; row < size; row++) {
-                    for (let col = 0; col < size; col++) {
-                        if (this.modules[row][col] === null) {
-                            this.modules[row][col] = false;
-                        }
-                    }
-                }
-            };
-
-            QRCode.prototype.isReserved = function(row, col, size) {
-                // Finder patterns
-                if ((row < 9 && col < 9) || 
-                    (row < 9 && col >= size - 8) || 
-                    (row >= size - 8 && col < 9)) {
-                    return true;
-                }
-                // Timing patterns
-                if (row === 6 || col === 6) return true;
-                // Dark module
-                if (row === 8 && col === size - 8) return true;
-                return false;
-            };
-
-            QRCode.prototype.toCanvas = function(canvas) {
-                const ctx = canvas.getContext('2d');
-                const size = this.modules.length;
-                const cellSize = Math.floor(canvas.width / size);
-                const offset = (canvas.width - (size * cellSize)) / 2;
-                
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#000000';
-                for (let row = 0; row < size; row++) {
-                    for (let col = 0; col < size; col++) {
-                        if (this.modules[row][col]) {
-                            ctx.fillRect(
-                                offset + col * cellSize,
-                                offset + row * cellSize,
-                                cellSize,
-                                cellSize
-                            );
-                        }
-                    }
-                }
-            };
-
-            window.QRCode = QRCode;
-        })();
+        // QR code generation using a reliable external image service.
+        // Each card's URL is encoded directly as the QR payload; the service
+        // returns a PNG image whose QR content is that URL.
 
         // Icon SVG definitions
         const icons = {
@@ -796,19 +557,20 @@
         let firstFocusable = null;
         let lastFocusable = null;
 
-        // Wrapper around the QRCode implementation so all QR generation
-        // (on-screen, download, sharing) goes through a single code path.
+        // Wrapper for generating QR images for a given URL.
+        // Uses an external QR code image service that encodes the URL as the QR payload.
         // - url: string that will be encoded in the QR
-        // - canvas: target <canvas> element (visible or off-screen)
-        // - options.size: output size in pixels (canvas will be size x size)
-        function generateQRCodeForUrl(url, canvas, options = {}) {
-            const size = options.size || 400; // reasonable on-screen default
+        // - imgElement: target <img> element (visible in the modal)
+        // - options.size: output size in pixels (image will be size x size)
+        function generateQRCodeForUrl(url, imgElement, options = {}) {
+            const size = options.size || 400; // on-screen default
+            const clampedSize = Math.max(150, Math.min(size, 1000));
+            const encoded = encodeURIComponent(url);
+            const src = `https://api.qrserver.com/v1/create-qr-code/?size=${clampedSize}x${clampedSize}&data=${encoded}&margin=4`;
 
-            canvas.width = size;
-            canvas.height = size;
-
-            const qr = new QRCode(url, size);
-            qr.toCanvas(canvas);
+            imgElement.src = src;
+            imgElement.width = clampedSize;
+            imgElement.height = clampedSize;
         }
 
         function getFilteredActions(category) {
@@ -934,14 +696,14 @@
         function downloadQR() {
             if (!currentAction) return;
 
-            // Generate a high-resolution QR off-screen for printing
+            // Use a high-resolution QR image from the external service for printing
             const size = 1024;
-            const offscreen = document.createElement('canvas');
-            generateQRCodeForUrl(currentAction.url, offscreen, { size });
+            const encoded = encodeURIComponent(currentAction.url);
+            const downloadUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=4`;
 
             const link = document.createElement('a');
             link.download = `qr-${currentAction.label.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
-            link.href = offscreen.toDataURL('image/png');
+            link.href = downloadUrl;
             link.click();
         }
 
@@ -966,18 +728,6 @@
 
             if (navigator.share) {
                 try {
-                    let blob;
-                    try {
-                        blob = await new Promise((resolve) => modalQr.toBlob(resolve, 'image/png'));
-                    } catch {
-                        blob = null;
-                    }
-
-                    if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], 'qr.png', { type: 'image/png' })] })) {
-                        const qrFile = new File([blob], 'qr.png', { type: 'image/png' });
-                        sharePayload.files = [qrFile];
-                    }
-
                     await navigator.share(sharePayload);
                     showToast('Share dialog opened');
                     return;
