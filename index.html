@@ -545,9 +545,11 @@
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
         }
 
-        .springboard-tile__icon svg {
+        .springboard-tile__icon svg,
+        .springboard-tile__icon img {
             width: 100%;
             height: 100%;
+            object-fit: contain;
         }
 
         .springboard-tile__label {
@@ -844,6 +846,19 @@
             folderContacts: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 12h4M14 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="14" r="2" stroke="currentColor" stroke-width="2"/><path d="M5.5 18c.6-1.2 1.9-2 3.5-2s2.9.8 3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
         };
 
+        const ICON_BASE_PATH = '/icons';
+
+        function iconKeyToFilename(key) {
+            return key
+                .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+                .toLowerCase() + '.png';
+        }
+
+        function getIconSrc(iconKey) {
+            if (!iconKey) return '';
+            return `${ICON_BASE_PATH}/${iconKeyToFilename(iconKey)}`;
+        }
+
         const folders = [
             {
                 id: 'folder-info',
@@ -1044,6 +1059,7 @@
 
         function createFolderTile(folder) {
             const label = getFolderLabel(folder);
+            const iconSrc = getIconSrc(folder.icon);
             const tile = document.createElement('div');
             tile.className = 'springboard-tile springboard-tile--folder';
             tile.setAttribute('role', 'gridcell');
@@ -1054,7 +1070,9 @@
             button.setAttribute('aria-label', label);
             button.dataset.folderId = folder.id;
             button.innerHTML = `
-                <div class="springboard-tile__icon" aria-hidden="true">${icons[folder.icon] || ''}</div>
+                <div class="springboard-tile__icon" aria-hidden="true">
+                    ${iconSrc ? `<img src="${iconSrc}" alt="" loading="lazy" />` : ''}
+                </div>
                 <div class="springboard-tile__label">${label}</div>
             `;
             button.addEventListener('click', () => openFolder(folder, button));
@@ -1064,6 +1082,7 @@
         }
 
         function createActionTile(action) {
+            const iconSrc = getIconSrc(action.icon);
             const tile = document.createElement('div');
             tile.className = 'springboard-tile';
             tile.setAttribute('role', 'gridcell');
@@ -1073,7 +1092,9 @@
             button.type = 'button';
             button.setAttribute('aria-label', action.label);
             button.innerHTML = `
-                <div class="springboard-tile__icon" aria-hidden="true">${icons[action.icon] || ''}</div>
+                <div class="springboard-tile__icon" aria-hidden="true">
+                    ${iconSrc ? `<img src="${iconSrc}" alt="" loading="lazy" />` : ''}
+                </div>
                 <div class="springboard-tile__label">${action.label}</div>
             `;
             button.addEventListener('click', () => handleActionSelect(action, button));
