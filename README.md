@@ -48,7 +48,7 @@ The site is protected by a password that is set via the `SITE_PASSWORD` environm
 
 - `index.html` - Main application (self-contained)
 - `password.html` - Password entry page
-- `middleware.js` - Edge middleware for password protection
+- `edge/auth.js` - Edge function that checks the auth cookie before serving `index.html`
 - `api/auth.js` - Authentication API endpoint
 - `vercel.json` - Vercel configuration
 
@@ -69,9 +69,9 @@ If password protection is not working:
    - After setting/changing environment variables, trigger a new deployment
    - Environment variables are only available after a new deployment
 
-4. **Check Middleware:**
-   - The `middleware.js` file should be in the root directory
-   - Vercel Edge Middleware runs automatically if the file is present
+4. **Check Edge Function:**
+   - The `edge/auth.js` file runs before `index.html` is served
+   - Every request is routed through it via `vercel.json`
 
 5. **Client-side Fallback:**
    - A client-side check is included as a fallback

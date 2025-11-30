@@ -8,22 +8,25 @@
     {
       "src": "api/auth.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "edge/auth.js",
+      "use": "@vercel/edge"
     }
   ],
   "routes": [
+    {
+      "src": "/password.html",
+      "dest": "/password.html"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/edge/auth.js"
     }
-  ],
-  "functions": {
-    "api/auth.js": {
-      "includeFiles": "api/auth.js"
-    }
-  }
+  ]
 }
 
