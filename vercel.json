@@ -1,32 +1,26 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/auth.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "edge/auth.js",
-      "use": "@vercel/edge"
-    }
-  ],
   "routes": [
     {
-      "src": "/password.html",
-      "dest": "/password.html"
+      "handle": "filesystem"
     },
     {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
     {
+      "src": "/password.html",
+      "dest": "/password.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/edge/auth.js"
     }
-  ]
+  ],
+  "functions": {
+    "edge/auth.js": {
+      "runtime": "edge"
+    }
+  }
 }
 
