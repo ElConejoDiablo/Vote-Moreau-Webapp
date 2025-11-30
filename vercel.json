@@ -1,34 +1,17 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "index.html",
-      "use": "@vercel/static"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     },
     {
-      "src": "password.html",
-      "use": "@vercel/static"
+      "source": "/password.html",
+      "destination": "/password.html"
     },
     {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/password.html",
-      "dest": "/password.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/edge"
+      "source": "/(.*)",
+      "destination": "/api/edge"
     }
   ]
 }
