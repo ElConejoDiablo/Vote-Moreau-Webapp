@@ -33,6 +33,7 @@ A mobile-first, single-page web application for displaying scannable QR codes fo
 3. **Set Environment Variable:**
    - In Vercel project settings, go to "Environment Variables"
    - Add: `SITE_PASSWORD` = `your-secure-password-here`
+   - **IMPORTANT**: Make sure to select "Production" environment (not just Preview)
    - This is the password users will need to access the site
 
 4. **Deploy:**
@@ -50,6 +51,31 @@ The site is protected by a password that is set via the `SITE_PASSWORD` environm
 - `middleware.js` - Edge middleware for password protection
 - `api/auth.js` - Authentication API endpoint
 - `vercel.json` - Vercel configuration
+
+## Troubleshooting Password Protection
+
+If password protection is not working:
+
+1. **Check Environment Variable:**
+   - Ensure `SITE_PASSWORD` is set for **Production** environment (not just Preview)
+   - Go to Project Settings → Environment Variables
+   - Verify it's set for "Production" environment
+
+2. **Clear Browser Cookies:**
+   - The site uses cookies for authentication
+   - Clear cookies for `engage.votemoreau.com` and try again
+
+3. **Redeploy:**
+   - After setting/changing environment variables, trigger a new deployment
+   - Environment variables are only available after a new deployment
+
+4. **Check Middleware:**
+   - The `middleware.js` file should be in the root directory
+   - Vercel Edge Middleware runs automatically if the file is present
+
+5. **Client-side Fallback:**
+   - A client-side check is included as a fallback
+   - If Edge Middleware doesn't run, the client-side check will redirect to the password page
 
 ## Notes
 

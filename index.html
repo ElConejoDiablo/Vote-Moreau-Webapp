@@ -396,6 +396,20 @@
     <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
     <script>
+        // Check authentication on page load (client-side fallback)
+        (function() {
+            const cookie = document.cookie;
+            const isAuthenticated = cookie.includes('auth_token=authenticated');
+            
+            if (!isAuthenticated && window.location.pathname !== '/password.html') {
+                // Check if we're on the password page or API route
+                const path = window.location.pathname;
+                if (path !== '/password.html' && !path.startsWith('/api/')) {
+                    window.location.href = '/password.html';
+                }
+            }
+        })();
+
         // Lightweight QR Code Generator (embedded, self-contained)
         (function() {
             'use strict';
