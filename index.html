@@ -562,6 +562,18 @@
         // - url: string that will be encoded in the QR
         // - imgElement: target <img> element (visible in the modal)
         // - options.size: output size in pixels (image will be size x size)
+        const QR_CANONICAL_ORIGIN = 'https://engage.votemoreau.com';
+
+        function resolveUrlForAction(action) {
+            if (action.url.startsWith('http://') || action.url.startsWith('https://')) {
+                return action.url;
+            }
+            if (action.url.startsWith('//')) {
+                return `https:${action.url}`;
+            }
+            return `${QR_CANONICAL_ORIGIN}${action.url}`;
+        }
+
         function generateQRCodeForUrl(url, imgElement, options = {}) {
             const size = options.size || 400; // on-screen default
             const clampedSize = Math.max(150, Math.min(size, 1000));
@@ -585,7 +597,7 @@
         }
 
         function getQrPayloadForAction(action) {
-            const base = action.url;
+            const base = resolveUrlForAction(action);
             const rawId = action.id || slugifyForId(action.label) || 'card';
             const id = rawId.toLowerCase();
 

@@ -5,6 +5,7 @@ const https = require('https');
 const ROOT_DIR = path.join(__dirname, '..');
 const INDEX_PATH = path.join(ROOT_DIR, 'index.html');
 const OUTPUT_DIR = path.join(ROOT_DIR, 'qr-codes');
+const CANONICAL_ORIGIN = process.env.CANONICAL_ORIGIN || 'https://engage.votemoreau.com';
 
 function slugifyForId(label) {
   return label
@@ -13,8 +14,18 @@ function slugifyForId(label) {
     .replace(/^-+|-+$/g, '');
 }
 
+function resolveUrlForAction(action) {
+  if (action.url.startsWith('http://') || action.url.startsWith('https://')) {
+    return action.url;
+  }
+  if (action.url.startsWith('//')) {
+    return `https:${action.url}`;
+  }
+  return `${CANONICAL_ORIGIN}${action.url}`;
+}
+
 function getQrPayloadForAction(action) {
-  const base = action.url;
+  const base = resolveUrlForAction(action);
   const rawId = action.id || slugifyForId(action.label) || 'card';
   const id = rawId.toLowerCase();
 
