@@ -485,29 +485,11 @@
         }
 
         .springboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
             gap: 1rem;
-            justify-items: center;
-            align-content: start;
-        }
-
-        @media (min-width: 480px) {
-            .springboard-grid {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
-        }
-
-        @media (min-width: 768px) {
-            .springboard-grid {
-                grid-template-columns: repeat(5, minmax(0, 1fr));
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .springboard-grid {
-                grid-template-columns: repeat(6, minmax(0, 1fr));
-            }
+            justify-content: center;
         }
 
         .springboard-tile {
@@ -515,6 +497,29 @@
             display: flex;
             justify-content: center;
             align-items: stretch;
+            flex: 0 0 calc(33.333% - 0.67rem);
+            max-width: calc(33.333% - 0.67rem);
+        }
+
+        @media (min-width: 480px) {
+            .springboard-tile {
+                flex: 0 0 calc(25% - 0.75rem);
+                max-width: calc(25% - 0.75rem);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .springboard-tile {
+                flex: 0 0 calc(20% - 0.8rem);
+                max-width: calc(20% - 0.8rem);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .springboard-tile {
+                flex: 0 0 calc(16.666% - 0.83rem);
+                max-width: calc(16.666% - 0.83rem);
+            }
         }
 
         .springboard-tile__button {
@@ -882,7 +887,8 @@
             folderForms: 'forms and requests.png',
             folderSocial: 'socials.png',
             folderContacts: 'election details.png',
-            folderFavorites: 'favorites.png'
+            folderContactsNew: 'contacts.png',
+            folderFavorites: 'favs.png'
         };
 
         function iconKeyToFilename(key) {
@@ -1103,13 +1109,13 @@
             springboardGrid.innerHTML = '';
             springboardGrid.setAttribute('aria-busy', 'true');
 
-            // Render actions first (they will appear at the top)
+            // Render actions first
             const looseActions = getLocalizedActions(action => !folders.some(folder => folder.category === action.category));
             looseActions.forEach(action => {
                 springboardGrid.appendChild(createActionTile(action));
             });
 
-            // Render folders last (they will appear at the bottom due to CSS order)
+            // Render folders and append them at the end (they will appear at the bottom)
             folders.forEach(folder => {
                 const folderTile = createFolderTile(folder);
                 springboardGrid.appendChild(folderTile);
