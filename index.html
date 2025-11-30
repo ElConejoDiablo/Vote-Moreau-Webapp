@@ -489,6 +489,7 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 1rem;
             justify-items: center;
+            align-content: start;
         }
 
         @media (min-width: 480px) {
@@ -576,6 +577,10 @@
             text-align: center;
             color: var(--text);
             line-height: 1.3;
+        }
+
+        .springboard-tile--folder {
+            order: 999;
         }
 
         .springboard-tile--folder .springboard-tile__button {
@@ -861,7 +866,9 @@
             folderInfo: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 12h10M7 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
             folderForms: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h8M8 16h5M8 8h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
             folderSocial: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="13" r="2" stroke="currentColor" stroke-width="2"/><path d="M12 13h3.5a1.5 1.5 0 110 3H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-            folderContacts: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 12h4M14 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="14" r="2" stroke="currentColor" stroke-width="2"/><path d="M5.5 18c.6-1.2 1.9-2 3.5-2s2.9.8 3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+            folderContacts: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 12h4M14 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="14" r="2" stroke="currentColor" stroke-width="2"/><path d="M5.5 18c.6-1.2 1.9-2 3.5-2s2.9.8 3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+            folderContactsNew: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="14" r="2" stroke="currentColor" stroke-width="2"/><path d="M5.5 18c.6-1.2 1.9-2 3.5-2s2.9.8 3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 12h4M14 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+            folderFavorites: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 10.5l1.5 3 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5-2.5-2.5 3.5-.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         };
 
         const ICON_BASE_PATH = '/icons';
@@ -870,7 +877,12 @@
             contactCraigEn: 'craig-icon.png',
             contactCraigEs: 'craig-icon.png',
             donateEn: 'donate.png',
-            donateEs: 'donate.png'
+            donateEs: 'donate.png',
+            folderInfo: 'information for voters.png',
+            folderForms: 'forms and requests.png',
+            folderSocial: 'socials.png',
+            folderContacts: 'election details.png',
+            folderFavorites: 'favorites.png'
         };
 
         function iconKeyToFilename(key) {
@@ -894,8 +906,8 @@
                 category: 'voter-registration',
                 icon: 'folderInfo',
                 label: {
-                    en: 'Information for Voters',
-                    es: 'Información para votantes'
+                    en: 'Voter Information',
+                    es: 'Información de Votantes'
                 }
             },
             {
@@ -921,8 +933,26 @@
                 category: 'contacts',
                 icon: 'folderContacts',
                 label: {
-                    en: 'Contacts & Offices',
-                    es: 'Contactos y oficinas'
+                    en: 'Election Details',
+                    es: 'Detalles de Elección'
+                }
+            },
+            {
+                id: 'folder-contacts-new',
+                category: 'contacts-folder',
+                icon: 'folderContactsNew',
+                label: {
+                    en: 'Contacts',
+                    es: 'Contactos'
+                }
+            },
+            {
+                id: 'folder-favorites',
+                category: 'favorites',
+                icon: 'folderFavorites',
+                label: {
+                    en: 'Favorites',
+                    es: 'Favoritos'
                 }
             }
         ];
@@ -952,8 +982,8 @@
             { label: 'Solicitar Letrero para Ventana', url: 'https://form.jotform.com/253326570216150', lang: 'es', icon: 'windowEs', category: 'forms' },
             { label: 'Apply to Volunteer', url: 'https://form.jotform.com/253277644615160', lang: 'en', icon: 'volunteerEn', category: 'forms' },
             { label: 'Aplicar para Ser Voluntario', url: 'https://form.jotform.com/253277644615160', lang: 'es', icon: 'volunteerEs', category: 'forms' },
-            { label: 'Subscribe to Weekly Newsletter', url: 'https://form.jotform.com/253328242016045', lang: 'en', icon: 'newsletterEn', category: 'forms' },
-            { label: 'Suscribirse al Boletín Semanal', url: 'https://form.jotform.com/253328242016045', lang: 'es', icon: 'newsletterEs', category: 'forms' },
+            { label: 'Subscribe to Newsletter', url: 'https://form.jotform.com/253328242016045', lang: 'en', icon: 'newsletterEn', category: 'forms' },
+            { label: 'Suscribirse al Boletín', url: 'https://form.jotform.com/253328242016045', lang: 'es', icon: 'newsletterEs', category: 'forms' },
             { label: 'Constituent Survey', url: 'https://form.jotform.com/253328352767060', lang: 'en', icon: 'surveyEn', category: 'forms' },
             { label: 'Encuesta de Constituyentes', url: 'https://form.jotform.com/253328352767060', lang: 'es', icon: 'surveyEs', category: 'forms' },
             { label: 'Request Ballot by Mail', url: 'https://vrrequest.sos.texas.gov/Ballot/AddRequestEN', lang: 'en', icon: 'ballotMailEn', category: 'voter-registration', id: 'request-ballot-by-mail-en' },
@@ -1073,14 +1103,16 @@
             springboardGrid.innerHTML = '';
             springboardGrid.setAttribute('aria-busy', 'true');
 
-            folders.forEach(folder => {
-                const folderTile = createFolderTile(folder);
-                springboardGrid.appendChild(folderTile);
-            });
-
+            // Render actions first (they will appear at the top)
             const looseActions = getLocalizedActions(action => !folders.some(folder => folder.category === action.category));
             looseActions.forEach(action => {
                 springboardGrid.appendChild(createActionTile(action));
+            });
+
+            // Render folders last (they will appear at the bottom due to CSS order)
+            folders.forEach(folder => {
+                const folderTile = createFolderTile(folder);
+                springboardGrid.appendChild(folderTile);
             });
 
             springboardGrid.setAttribute('aria-busy', 'false');
