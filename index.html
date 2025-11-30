@@ -33,11 +33,19 @@
             padding-bottom: 2rem;
         }
 
-        h1 {
-            font-size: 1.5rem;
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
             margin-bottom: 1rem;
-            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            margin: 0;
             color: var(--primary);
+            text-align: left;
         }
 
         .language-toggle {
@@ -379,16 +387,17 @@
     </style>
 </head>
 <body>
-    <h1>Campaign Actions</h1>
-    
-    <div class="language-toggle">
-        <span class="language-toggle-label">English</span>
-        <label class="toggle-switch" aria-label="Toggle language between English and Spanish">
-            <input type="checkbox" id="language-toggle" aria-label="Language toggle">
-            <span class="toggle-slider"></span>
-        </label>
-        <span class="language-toggle-label">Español</span>
-    </div>
+    <header class="page-header">
+        <h1>Vote Moreau Resources</h1>
+        <div class="language-toggle">
+            <span class="language-toggle-label">English</span>
+            <label class="toggle-switch" aria-label="Toggle language between English and Spanish">
+                <input type="checkbox" id="language-toggle" aria-label="Language toggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="language-toggle-label">Español</span>
+        </div>
+    </header>
     
     <main class="sections" aria-label="Campaign action groups">
         <section class="action-section" aria-labelledby="section-voter">
