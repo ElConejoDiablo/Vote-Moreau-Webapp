@@ -648,15 +648,16 @@
             windowSign: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M9 3v18" stroke="currentColor" stroke-width="2"/></svg>',
             volunteer: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             newsletter: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-            facebook: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>'
+            facebook: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>',
+            instagram: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
         };
 
         // Application code
         const actions = [
-            { label: 'Register/Update Voter Registration', url: 'https://example.org/voter/registration/en', lang: 'en', icon: 'register' },
-            { label: 'Registrar/Actualizar Registro de Votantes', url: 'https://example.org/voter/registration/es', lang: 'es', icon: 'register' },
-            { label: 'Request Mail-In Registration for up to 5', url: 'https://example.org/voter/mail-request/en', lang: 'en', icon: 'mail' },
-            { label: 'Solicitar Registro por Correo para hasta 5', url: 'https://example.org/voter/mail-request/es', lang: 'es', icon: 'mail' },
+            { label: 'Register or Update Voter Registration', url: 'https://example.org/voter/registration/en', lang: 'en', icon: 'register' },
+            { label: 'Registrar o Actualizar Registro de Votantes', url: 'https://example.org/voter/registration/es', lang: 'es', icon: 'register' },
+            { label: 'Request Prepaid Mail-in Voter Registration Form', url: 'https://example.org/voter/mail-request/en', lang: 'en', icon: 'mail' },
+            { label: 'Solicitar Formulario de Registro de Votantes por Correo Prepagado', url: 'https://example.org/voter/mail-request/es', lang: 'es', icon: 'mail' },
             { label: 'Donate to Campaign', url: 'https://example.org/donate', lang: 'en', icon: 'donate' },
             { label: 'Donar a la Campaña', url: 'https://example.org/donate/es', lang: 'es', icon: 'donate' },
             { label: 'Request Yard Sign', url: 'https://example.org/signs/yard', lang: 'en', icon: 'yardSign' },
@@ -667,8 +668,10 @@
             { label: 'Aplicar para Ser Voluntario', url: 'https://example.org/volunteer/es', lang: 'es', icon: 'volunteer' },
             { label: 'Subscribe to Weekly Newsletter', url: 'https://example.org/newsletter/weekly', lang: 'en', icon: 'newsletter' },
             { label: 'Suscribirse al Boletín Semanal', url: 'https://example.org/newsletter/weekly/es', lang: 'es', icon: 'newsletter' },
-            { label: 'Follow Facebook', url: 'https://facebook.com/ExampleCampaignEN', lang: 'en', icon: 'facebook' },
-            { label: 'Seguir Facebook', url: 'https://facebook.com/ExampleCampaignES', lang: 'es', icon: 'facebook' }
+            { label: 'Follow on Facebook', url: 'https://facebook.com/ExampleCampaignEN', lang: 'en', icon: 'facebook' },
+            { label: 'Seguir en Facebook', url: 'https://facebook.com/ExampleCampaignES', lang: 'es', icon: 'facebook' },
+            { label: 'Follow on Instagram', url: 'https://instagram.com/ExampleCampaignEN', lang: 'en', icon: 'instagram' },
+            { label: 'Seguir en Instagram', url: 'https://instagram.com/ExampleCampaignES', lang: 'es', icon: 'instagram' }
         ];
 
         const grid = document.querySelector('.actions-grid');
