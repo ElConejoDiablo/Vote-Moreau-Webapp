@@ -99,6 +99,36 @@
             line-height: 1.15;
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
         }
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            max-width: 640px;
+            padding: 0.25rem;
+        }
+
+        .chip {
+            border-radius: 999px;
+            padding: 0.6rem 1.25rem;
+            border: 1px solid rgba(26, 84, 144, 0.4);
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 20px rgba(26, 84, 144, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .chip:focus-visible,
+        .chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(26, 84, 144, 0.2);
+            outline: none;
+        }
 
         .language-toggle {
             display: flex;
@@ -793,6 +823,12 @@
     </header>
     
     <main class="springboard" aria-label="SpringBoard home screen">
+        <section class="chip-row" aria-label="Action chips">
+            <button type="button" class="chip" data-chip="countdown">Countdown</button>
+            <button type="button" class="chip" data-chip="poll-locator">Poll Locator</button>
+            <button type="button" class="chip" data-chip="alpha">Alpha</button>
+            <button type="button" class="chip" data-chip="beta">Beta</button>
+        </section>
         <div class="springboard-grid" id="springboard-grid" role="grid" aria-label="App grid"></div>
     </main>
 
