@@ -490,6 +490,27 @@
             flex-wrap: wrap;
             gap: 1rem;
             justify-content: center;
+            align-content: flex-start;
+            min-height: calc(100vh - 200px);
+        }
+
+        .springboard-spacer {
+            flex-basis: 100%;
+            order: 998;
+            width: 100%;
+            min-height: 300px;
+        }
+
+        @media (min-height: 800px) {
+            .springboard-spacer {
+                min-height: 400px;
+            }
+        }
+
+        @media (min-height: 1000px) {
+            .springboard-spacer {
+                min-height: 500px;
+            }
         }
 
         .springboard-tile {
@@ -1114,6 +1135,11 @@
             looseActions.forEach(action => {
                 springboardGrid.appendChild(createActionTile(action));
             });
+
+            // Add spacer to push folders to the bottom
+            const spacer = document.createElement('div');
+            spacer.className = 'springboard-spacer';
+            springboardGrid.appendChild(spacer);
 
             // Render folders and append them at the end (they will appear at the bottom)
             folders.forEach(folder => {
