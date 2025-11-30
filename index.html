@@ -74,13 +74,8 @@
         }
 
         .page-header {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 0.5rem;
             margin: 0 auto 1.25rem;
-            padding: 0.85rem 1rem;
+            padding: 0.85rem 1rem 1.25rem;
             max-width: 640px;
             border-radius: 24px;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.6));
@@ -90,11 +85,32 @@
             -webkit-backdrop-filter: blur(18px);
         }
 
-        .page-header h1 {
+        .header-top {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .language-toggle {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .page-header h1,
+        .header-top h1 {
             font-size: 1.5rem;
             margin: 0;
             color: var(--primary);
-            text-align: left;
+            text-align: center;
             font-weight: 700;
             line-height: 1.15;
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -130,17 +146,9 @@
             outline: none;
         }
 
-        .language-toggle {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 0.75rem;
-            margin: 0;
-        }
-
-        .language-toggle-label {
-            font-size: 0.875rem;
-            font-weight: 500;
+        .language-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
             color: var(--text);
         }
 
@@ -162,6 +170,11 @@
             display: inline-block;
             width: 60px;
             height: 32px;
+        }
+
+        .toggle-switch.small {
+            width: 48px;
+            height: 26px;
         }
 
         .toggle-switch input {
@@ -197,6 +210,13 @@
             border-radius: 50%;
         }
 
+        .toggle-switch.small .toggle-slider:before {
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+        }
+
         .toggle-switch input:checked + .toggle-slider {
             background: linear-gradient(135deg, rgba(26, 84, 144, 0.9), rgba(26, 84, 144, 0.7));
             box-shadow: 0 6px 18px rgba(26, 84, 144, 0.45);
@@ -209,6 +229,10 @@
 
         .toggle-switch input:checked + .toggle-slider:before {
             transform: translateX(28px);
+        }
+
+        .toggle-switch.small input:checked + .toggle-slider:before {
+            transform: translateX(20px);
         }
 
         .actions-grid {
@@ -811,14 +835,16 @@
 </head>
 <body>
     <header class="page-header">
-        <h1>Vote Moreau Resources</h1>
-        <div class="language-toggle">
-            <span class="language-toggle-label">English</span>
-            <label class="toggle-switch" aria-label="Toggle language between English and Spanish">
-                <input type="checkbox" id="language-toggle" aria-label="Language toggle">
-                <span class="toggle-slider"></span>
-            </label>
-            <span class="language-toggle-label">Español</span>
+        <div class="header-top">
+            <h1>Vote Moreau Actions</h1>
+            <div class="language-toggle">
+                <span class="language-label">EN</span>
+                <label class="toggle-switch small" aria-label="Toggle language between English and Spanish">
+                    <input type="checkbox" id="language-toggle" aria-label="Language toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="language-label">ES</span>
+            </div>
         </div>
     </header>
     
