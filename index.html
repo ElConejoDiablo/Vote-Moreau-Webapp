@@ -39,6 +39,9 @@
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
             --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+
+            /* Layout */
+            --folder-dock-height: 230px;
         }
 
         body {
@@ -628,7 +631,7 @@
             gap: 1rem;
             justify-content: center;
             align-content: flex-start;
-            min-height: calc(100vh - 200px);
+            min-height: 0;
         }
 
         .springboard-spacer {
@@ -837,6 +840,32 @@
             text-align: center;
         }
 
+        .folder-dock {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0.75rem 1rem 1.1rem;
+            background: rgba(255, 255, 255, 0.94);
+            border-top: 1px solid var(--glass-border);
+            box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .folder-dock-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .folder-dock .springboard-tile {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .folder-dock .springboard-tile__button {
+            min-height: 96px;
+        }
+
         @media (min-width: 768px) {
             .folder-sheet {
                 align-items: center;
@@ -914,6 +943,20 @@
                 background: rgba(0, 0, 0, 0.9);
             }
         }
+
+        @media (max-width: 768px) {
+            .folder-dock {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 900;
+            }
+
+            .springboard {
+                padding-bottom: var(--folder-dock-height);
+            }
+        }
     </style>
 </head>
 <body>
@@ -940,6 +983,10 @@
         <section id="chip-widget-area" class="chip-widget-area" aria-label="Chip widgets"></section>
         <div class="springboard-grid" id="springboard-grid" role="grid" aria-label="App grid"></div>
     </main>
+
+    <section id="folder-dock" class="folder-dock" aria-label="Folders">
+        <div id="folder-dock-grid" class="folder-dock-grid" role="grid" aria-label="Folder shortcuts"></div>
+    </section>
 
     <div class="modal" id="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true" aria-hidden="true">
         <div class="modal-content">
@@ -1229,6 +1276,7 @@
         const folderGrid = document.getElementById('folder-grid');
         const folderCloseBtn = document.getElementById('folder-close-btn');
         const folderDoneBtn = document.getElementById('folder-close-thumb');
+        const folderDockGrid = document.getElementById('folder-dock-grid');
         const chipWidgetArea = document.getElementById('chip-widget-area');
         const chips = document.querySelectorAll('.chip');
         
@@ -1529,24 +1577,28 @@
             springboardGrid.innerHTML = '';
             springboardGrid.setAttribute('aria-busy', 'true');
 
-            // Render actions first
-            const looseActions = getLocalizedActions(action => !folders.some(folder => folder.category === action.category));
+            // Render only non-folder actions in the main grid
+            const looseActions = getLocalizedActions(
+                action => !folders.some(folder => folder.category === action.category)
+            );
             looseActions.forEach(action => {
                 springboardGrid.appendChild(createActionTile(action));
             });
 
-            // Add spacer to push folders to the bottom
             const spacer = document.createElement('div');
             spacer.className = 'springboard-spacer';
             springboardGrid.appendChild(spacer);
 
-            // Render folders and append them at the end (they will appear at the bottom)
+            springboardGrid.setAttribute('aria-busy', 'false');
+        }
+
+        function renderFolderDock() {
+            if (!folderDockGrid) return;
+            folderDockGrid.innerHTML = '';
             folders.forEach(folder => {
                 const folderTile = createFolderTile(folder);
-                springboardGrid.appendChild(folderTile);
+                folderDockGrid.appendChild(folderTile);
             });
-
-            springboardGrid.setAttribute('aria-busy', 'false');
         }
 
         function createFolderTile(folder) {
@@ -1598,7 +1650,7 @@
         function handleActionSelect(action, trigger) {
             let originButton = trigger;
             if (folderSheet.classList.contains('open') && currentFolder) {
-                const folderButton = springboardGrid.querySelector(`[data-folder-id="${currentFolder.id}"]`);
+                const folderButton = document.querySelector(`[data-folder-id="${currentFolder.id}"]`);
                 if (folderButton) {
                     originButton = folderButton;
                 }
@@ -1889,6 +1941,7 @@
             currentLanguage = e.target.checked ? 'es' : 'en';
             localStorage.setItem('preferredLanguage', currentLanguage);
             renderSpringboard();
+            renderFolderDock();
 
             if (folderSheet.classList.contains('open')) {
                 closeFolder({ returnFocus: false });
@@ -1901,6 +1954,7 @@
 
         // Initialize
         renderSpringboard();
+        renderFolderDock();
     </script>
 </body>
 </html>
