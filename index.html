@@ -1324,13 +1324,38 @@
         const EARLY_VOTING_START = new Date(Date.UTC(2026, 1, 16, 13, 0, 0)); // Feb is month index 1
         const POLLS_CLOSE = new Date(Date.UTC(2026, 2, 4, 1, 0, 0)); // Mar is month index 2
 
+        function getCountdownText() {
+            if (currentLanguage === 'es') {
+                return {
+                    earlyPrimary: 'Las votaciones anticipadas de la primaria republicana comienzan en',
+                    pollsPrimary: 'Las urnas de la primaria republicana cierran en',
+                    pollsClosedPrimary: 'Las urnas de la primaria republicana han cerrado',
+                    earlySecondaryStarted: 'La votación anticipada ha comenzado',
+                    electionEndedSecondary: 'El día de la elección ha terminado',
+                    earlyNote: 'La votación anticipada comenzó el 16 de febrero de 2026 a las 7:00 a. m. hora central.',
+                    pollsNote: 'Las urnas cerraron el 3 de marzo de 2026 a las 7:00 p. m. hora central.'
+                };
+            }
+
+            return {
+                earlyPrimary: 'Republican Party Primary Early Voting Begins In',
+                pollsPrimary: 'Republican Party Primary Polls Close In',
+                pollsClosedPrimary: 'Republican Party Primary Polls Have Closed',
+                earlySecondaryStarted: 'Early Voting has begun',
+                electionEndedSecondary: 'Election Day has ended',
+                earlyNote: 'Early Voting began February 16, 2026 at 7:00 AM Central Time.',
+                pollsNote: 'Polls closed March 3, 2026 at 7:00 PM Central Time.'
+            };
+        }
+
         function renderCountdownWidgetShell() {
             if (!chipWidgetArea) return;
+            const labels = getCountdownText();
             chipWidgetArea.innerHTML = `
                 <div class="countdown-widget" aria-live="polite">
                     <div class="countdown-primary">
                         <div class="countdown-label" data-role="primary-label">
-                            Republican Party Primary Early Voting Begins In
+                            ${labels.earlyPrimary}
                         </div>
                         <div class="countdown-values" data-role="primary-values">
                             ${['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
@@ -1343,7 +1368,7 @@
                     </div>
                     <div class="countdown-secondary">
                         <div class="countdown-label" data-role="secondary-label">
-                            Republican Party Primary Polls Close In
+                            ${labels.pollsPrimary}
                         </div>
                         <div class="countdown-values" data-role="secondary-values">
                             ${['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
@@ -1404,6 +1429,7 @@
             const now = Date.now();
             const earlyVotingMs = EARLY_VOTING_START.getTime();
             const pollsCloseMs = POLLS_CLOSE.getTime();
+            const labels = getCountdownText();
 
             const primaryLabelEl = chipWidgetArea.querySelector('[data-role="primary-label"]');
             const secondaryLabelEl = chipWidgetArea.querySelector('[data-role="secondary-label"]');
@@ -1424,28 +1450,28 @@
             if (now < earlyVotingMs) {
                 // Before early voting starts
                 primaryTargetMs = earlyVotingMs;
-                primaryLabelText = 'Republican Party Primary Early Voting Begins In';
+                primaryLabelText = labels.earlyPrimary;
                 secondaryTargetMs = pollsCloseMs;
-                secondaryLabelText = 'Republican Party Primary Polls Close In';
+                secondaryLabelText = labels.pollsPrimary;
                 secondaryShowsTimer = true;
                 secondaryNoteEl.hidden = true;
             } else if (now >= earlyVotingMs && now < pollsCloseMs) {
                 // Early voting has begun; primary countdown goes to polls closing
                 primaryTargetMs = pollsCloseMs;
-                primaryLabelText = 'Republican Party Primary Polls Close In';
-                secondaryLabelText = 'Early Voting has begun';
+                primaryLabelText = labels.pollsPrimary;
+                secondaryLabelText = labels.earlySecondaryStarted;
                 secondaryShowsTimer = false;
                 secondaryNoteEl.hidden = false;
-                secondaryNoteEl.textContent = 'Early Voting began February 16, 2026 at 7:00 AM Central Time.';
+                secondaryNoteEl.textContent = labels.earlyNote;
             } else {
                 // Polls have closed
                 primaryTargetMs = pollsCloseMs;
-                primaryLabelText = 'Republican Party Primary Polls Have Closed';
-                secondaryLabelText = 'Election Day has ended';
+                primaryLabelText = labels.pollsClosedPrimary;
+                secondaryLabelText = labels.electionEndedSecondary;
                 secondaryShowsTimer = false;
                 afterPollsClose = true;
                 secondaryNoteEl.hidden = false;
-                secondaryNoteEl.textContent = 'Polls closed March 3, 2026 at 7:00 PM Central Time.';
+                secondaryNoteEl.textContent = labels.pollsNote;
             }
 
             const primaryDiff = Math.max(0, primaryTargetMs - now);
@@ -1969,6 +1995,15 @@
 
             if (modal.classList.contains('active')) {
                 closeModal({ returnFocus: false });
+            }
+
+            // Re-render countdown widget in the selected language if active
+            if (activeChip === 'countdown') {
+                if (countdownIntervalId !== null) {
+                    clearInterval(countdownIntervalId);
+                    countdownIntervalId = null;
+                }
+                startCountdown();
             }
         });
 
