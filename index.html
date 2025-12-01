@@ -286,7 +286,7 @@
         }
 
         .countdown-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--primary-dark);
             text-align: center;
@@ -961,6 +961,10 @@
                 padding: 0.45rem 0.9rem;
                 font-size: 0.8rem;
             }
+
+            .countdown-label {
+                font-size: 0.8rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1324,6 +1328,9 @@
         const EARLY_VOTING_START = new Date(Date.UTC(2026, 1, 16, 13, 0, 0)); // Feb is month index 1
         const POLLS_CLOSE = new Date(Date.UTC(2026, 2, 4, 1, 0, 0)); // Mar is month index 2
 
+        const PRIMARY_UNITS = ['months', 'days', 'hours', 'minutes', 'seconds'];
+        const SECONDARY_UNITS = ['months', 'days'];
+
         function getCountdownText() {
             if (currentLanguage === 'es') {
                 return {
@@ -1348,9 +1355,22 @@
             };
         }
 
+        function getCountdownUnits(unitKeys) {
+            const allKeys = ['months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
+            const labelsEn = ['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'];
+            const labelsEs = ['Meses', 'Semanas', 'Días', 'Horas', 'Minutos', 'Segundos'];
+            const labels = currentLanguage === 'es' ? labelsEs : labelsEn;
+            return unitKeys.map(key => {
+                const index = allKeys.indexOf(key);
+                return { key, label: index >= 0 ? labels[index] : key };
+            });
+        }
+
         function renderCountdownWidgetShell() {
             if (!chipWidgetArea) return;
             const labels = getCountdownText();
+            const primaryUnits = getCountdownUnits(PRIMARY_UNITS);
+            const secondaryUnits = getCountdownUnits(SECONDARY_UNITS);
             chipWidgetArea.innerHTML = `
                 <div class="countdown-widget" aria-live="polite">
                     <div class="countdown-primary">
@@ -1358,10 +1378,10 @@
                             ${labels.earlyPrimary}
                         </div>
                         <div class="countdown-values" data-role="primary-values">
-                            ${['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
+                            ${primaryUnits.map(unit => `
                                 <div class="countdown-unit">
-                                    <span class="countdown-number" data-unit="primary-${unit.toLowerCase()}">0</span>
-                                    <span class="countdown-unit-label">${unit}</span>
+                                    <span class="countdown-number" data-unit="primary-${unit.key}">0</span>
+                                    <span class="countdown-unit-label">${unit.label}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -1371,10 +1391,10 @@
                             ${labels.pollsPrimary}
                         </div>
                         <div class="countdown-values" data-role="secondary-values">
-                            ${['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
+                            ${secondaryUnits.map(unit => `
                                 <div class="countdown-unit">
-                                    <span class="countdown-number" data-unit="secondary-${unit.toLowerCase()}">0</span>
-                                    <span class="countdown-unit-label">${unit}</span>
+                                    <span class="countdown-number" data-unit="secondary-${unit.key}">0</span>
+                                    <span class="countdown-unit-label">${unit.label}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -1478,8 +1498,7 @@
             const primaryParts = getTimeParts(primaryDiff);
 
             // Update primary numbers
-            const primaryUnits = ['months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
-            primaryUnits.forEach(unit => {
+            PRIMARY_UNITS.forEach(unit => {
                 const el = chipWidgetArea.querySelector(`[data-unit="primary-${unit}"]`);
                 if (el) {
                     el.textContent = String(primaryParts[unit]);
@@ -1491,8 +1510,7 @@
                 secondaryValuesEl.style.display = 'flex';
                 const secondaryDiff = Math.max(0, secondaryTargetMs - now);
                 const secondaryParts = getTimeParts(secondaryDiff);
-                const secondaryUnits = ['months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
-                secondaryUnits.forEach(unit => {
+                SECONDARY_UNITS.forEach(unit => {
                     const el = chipWidgetArea.querySelector(`[data-unit="secondary-${unit}"]`);
                     if (el) {
                         el.textContent = String(secondaryParts[unit]);
