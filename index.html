@@ -129,7 +129,7 @@
             font-weight: 600;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
             box-shadow: 0 10px 20px rgba(26, 84, 144, 0.08);
             backdrop-filter: blur(12px);
         }
@@ -139,6 +139,12 @@
             transform: translateY(-2px);
             box-shadow: 0 14px 30px rgba(26, 84, 144, 0.2);
             outline: none;
+        }
+
+        .chip--active {
+            background: linear-gradient(135deg, rgba(26, 84, 144, 0.98), rgba(13, 58, 107, 0.95));
+            color: #ffffff;
+            box-shadow: 0 14px 30px rgba(26, 84, 144, 0.35);
         }
 
         .language-label {
@@ -236,6 +242,88 @@
             gap: 1rem;
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        .chip-widget-area {
+            max-width: 640px;
+            margin: 0 auto 1.5rem;
+            padding: 0;
+        }
+
+        .countdown-widget {
+            width: 100%;
+            padding: 0.9rem 1rem 1rem;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.82));
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .countdown-primary,
+        .countdown-secondary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .countdown-secondary {
+            margin-top: 0.65rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            padding-top: 0.55rem;
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            text-align: center;
+        }
+
+        .countdown-secondary .countdown-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .countdown-values {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.4rem 0.6rem;
+        }
+
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 52px;
+        }
+
+        .countdown-number {
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            color: #8b0000; /* deep red */
+            font-size: 1rem;
+        }
+
+        .countdown-unit-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-light);
+        }
+
+        .countdown-secondary .countdown-number {
+            font-size: 0.85rem;
+        }
+
+        .countdown-note {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-align: center;
+            margin-top: 0.4rem;
         }
 
         .sections {
@@ -845,10 +933,11 @@
     
     <main class="springboard" aria-label="SpringBoard home screen">
         <section class="chip-row" aria-label="Action chips">
-            <button type="button" class="chip" data-chip="countdown">Countdown</button>
-            <button type="button" class="chip" data-chip="polls">Polls</button>
-            <button type="button" class="chip" data-chip="alpha">Alpha</button>
+            <button type="button" class="chip" data-chip="countdown" aria-pressed="false">Countdown</button>
+            <button type="button" class="chip" data-chip="polls" aria-pressed="false">Polls</button>
+            <button type="button" class="chip" data-chip="alpha" aria-pressed="false">Alpha</button>
         </section>
+        <section id="chip-widget-area" class="chip-widget-area" aria-label="Chip widgets"></section>
         <div class="springboard-grid" id="springboard-grid" role="grid" aria-label="App grid"></div>
     </main>
 
@@ -1140,6 +1229,8 @@
         const folderGrid = document.getElementById('folder-grid');
         const folderCloseBtn = document.getElementById('folder-close-btn');
         const folderDoneBtn = document.getElementById('folder-close-thumb');
+        const chipWidgetArea = document.getElementById('chip-widget-area');
+        const chips = document.querySelectorAll('.chip');
         
         // Get saved language preference or default to English
         let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
@@ -1154,6 +1245,223 @@
         let folderFocusableElements = [];
         let firstFolderFocusable = null;
         let lastFolderFocusable = null;
+
+        // Countdown widget state
+        let activeChip = null;
+        let countdownIntervalId = null;
+
+        // Central Time targets:
+        // - Early voting begins: Feb 16, 2026 7:00 AM Central (CST is UTC-6 => 13:00 UTC)
+        // - Polls close: Mar 3, 2026 7:00 PM Central (CST is UTC-6 => Mar 4, 01:00 UTC)
+        const EARLY_VOTING_START = new Date(Date.UTC(2026, 1, 16, 13, 0, 0)); // Feb is month index 1
+        const POLLS_CLOSE = new Date(Date.UTC(2026, 2, 4, 1, 0, 0)); // Mar is month index 2
+
+        function renderCountdownWidgetShell() {
+            if (!chipWidgetArea) return;
+            chipWidgetArea.innerHTML = `
+                <div class="countdown-widget" aria-live="polite">
+                    <div class="countdown-primary">
+                        <div class="countdown-label" data-role="primary-label">
+                            Republican Party Primary Early Voting Begins In
+                        </div>
+                        <div class="countdown-values" data-role="primary-values">
+                            ${['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
+                                <div class="countdown-unit">
+                                    <span class="countdown-number" data-unit="primary-${unit.toLowerCase()}">0</span>
+                                    <span class="countdown-unit-label">${unit}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="countdown-secondary">
+                        <div class="countdown-label" data-role="secondary-label">
+                            Republican Party Primary Polls Close In
+                        </div>
+                        <div class="countdown-values" data-role="secondary-values">
+                            ${['Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'].map(unit => `
+                                <div class="countdown-unit">
+                                    <span class="countdown-number" data-unit="secondary-${unit.toLowerCase()}">0</span>
+                                    <span class="countdown-unit-label">${unit}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="countdown-note" data-role="secondary-note" hidden></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearCountdownWidget() {
+            if (countdownIntervalId !== null) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
+            if (chipWidgetArea) {
+                chipWidgetArea.innerHTML = '';
+            }
+        }
+
+        function getTimeParts(diffMs) {
+            let remaining = Math.max(0, diffMs);
+            const msSecond = 1000;
+            const msMinute = msSecond * 60;
+            const msHour = msMinute * 60;
+            const msDay = msHour * 24;
+            const msWeek = msDay * 7;
+            const msMonth = msDay * 30; // approximate month
+
+            const months = Math.floor(remaining / msMonth);
+            remaining -= months * msMonth;
+
+            const weeks = Math.floor(remaining / msWeek);
+            remaining -= weeks * msWeek;
+
+            const days = Math.floor(remaining / msDay);
+            remaining -= days * msDay;
+
+            const hours = Math.floor(remaining / msHour);
+            remaining -= hours * msHour;
+
+            const minutes = Math.floor(remaining / msMinute);
+            remaining -= minutes * msMinute;
+
+            const seconds = Math.floor(remaining / msSecond);
+
+            return { months, weeks, days, hours, minutes, seconds };
+        }
+
+        function updateCountdownDisplay() {
+            if (!chipWidgetArea) return;
+
+            const now = Date.now();
+            const earlyVotingMs = EARLY_VOTING_START.getTime();
+            const pollsCloseMs = POLLS_CLOSE.getTime();
+
+            const primaryLabelEl = chipWidgetArea.querySelector('[data-role="primary-label"]');
+            const secondaryLabelEl = chipWidgetArea.querySelector('[data-role="secondary-label"]');
+            const secondaryValuesEl = chipWidgetArea.querySelector('[data-role="secondary-values"]');
+            const secondaryNoteEl = chipWidgetArea.querySelector('[data-role="secondary-note"]');
+
+            if (!primaryLabelEl || !secondaryLabelEl || !secondaryValuesEl || !secondaryNoteEl) {
+                return;
+            }
+
+            let primaryTargetMs;
+            let secondaryTargetMs = pollsCloseMs;
+            let primaryLabelText;
+            let secondaryLabelText;
+            let secondaryShowsTimer = true;
+            let afterPollsClose = false;
+
+            if (now < earlyVotingMs) {
+                // Before early voting starts
+                primaryTargetMs = earlyVotingMs;
+                primaryLabelText = 'Republican Party Primary Early Voting Begins In';
+                secondaryTargetMs = pollsCloseMs;
+                secondaryLabelText = 'Republican Party Primary Polls Close In';
+                secondaryShowsTimer = true;
+                secondaryNoteEl.hidden = true;
+            } else if (now >= earlyVotingMs && now < pollsCloseMs) {
+                // Early voting has begun; primary countdown goes to polls closing
+                primaryTargetMs = pollsCloseMs;
+                primaryLabelText = 'Republican Party Primary Polls Close In';
+                secondaryLabelText = 'Early Voting has begun';
+                secondaryShowsTimer = false;
+                secondaryNoteEl.hidden = false;
+                secondaryNoteEl.textContent = 'Early Voting began February 16, 2026 at 7:00 AM Central Time.';
+            } else {
+                // Polls have closed
+                primaryTargetMs = pollsCloseMs;
+                primaryLabelText = 'Republican Party Primary Polls Have Closed';
+                secondaryLabelText = 'Election Day has ended';
+                secondaryShowsTimer = false;
+                afterPollsClose = true;
+                secondaryNoteEl.hidden = false;
+                secondaryNoteEl.textContent = 'Polls closed March 3, 2026 at 7:00 PM Central Time.';
+            }
+
+            const primaryDiff = Math.max(0, primaryTargetMs - now);
+            const primaryParts = getTimeParts(primaryDiff);
+
+            // Update primary numbers
+            const primaryUnits = ['months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
+            primaryUnits.forEach(unit => {
+                const el = chipWidgetArea.querySelector(`[data-unit="primary-${unit}"]`);
+                if (el) {
+                    el.textContent = String(primaryParts[unit]);
+                }
+            });
+
+            // Update secondary
+            if (secondaryShowsTimer) {
+                secondaryValuesEl.style.display = 'flex';
+                const secondaryDiff = Math.max(0, secondaryTargetMs - now);
+                const secondaryParts = getTimeParts(secondaryDiff);
+                const secondaryUnits = ['months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
+                secondaryUnits.forEach(unit => {
+                    const el = chipWidgetArea.querySelector(`[data-unit="secondary-${unit}"]`);
+                    if (el) {
+                        el.textContent = String(secondaryParts[unit]);
+                    }
+                });
+                secondaryNoteEl.hidden = true;
+            } else {
+                // Hide numeric timer for secondary; show note instead
+                secondaryValuesEl.style.display = 'none';
+            }
+
+            primaryLabelEl.textContent = primaryLabelText;
+            secondaryLabelEl.textContent = secondaryLabelText;
+
+            // Once polls have closed and we've frozen at zero, stop the timer.
+            if (afterPollsClose && primaryDiff === 0 && countdownIntervalId !== null) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
+        }
+
+        function startCountdown() {
+            clearCountdownWidget();
+            renderCountdownWidgetShell();
+            updateCountdownDisplay();
+            countdownIntervalId = window.setInterval(updateCountdownDisplay, 1000);
+        }
+
+        function handleChipSelection(chip) {
+            const chipKey = chip.dataset.chip;
+
+            if (activeChip === chipKey) {
+                // Tapping the active chip clears selection and widget
+                activeChip = null;
+                chips.forEach(c => {
+                    c.classList.remove('chip--active');
+                    c.setAttribute('aria-pressed', 'false');
+                });
+                clearCountdownWidget();
+                return;
+            }
+
+            activeChip = chipKey;
+
+            chips.forEach(c => {
+                const isActive = c === chip;
+                c.classList.toggle('chip--active', isActive);
+                c.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            // Stop any existing countdown when switching chips
+            if (countdownIntervalId !== null) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
+
+            if (chipKey === 'countdown') {
+                startCountdown();
+            } else {
+                // For now, other chips clear the widget area so it stays ready
+                clearCountdownWidget();
+            }
+        }
 
         // Wrapper for generating QR images for a given URL.
         // Uses an external QR code image service that encodes the URL as the QR payload.
@@ -1441,6 +1749,10 @@
         }
 
         // Event listeners
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => handleChipSelection(chip));
+        });
+
         closeBtn.addEventListener('click', () => closeModal());
         modalDoneBtn.addEventListener('click', () => closeModal());
         
