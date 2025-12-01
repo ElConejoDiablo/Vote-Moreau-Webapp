@@ -77,8 +77,8 @@
         }
 
         .page-header {
-            margin: 0 auto 1.25rem;
-            padding: 0.85rem 1rem 1.25rem;
+            margin: 0 auto 0.9rem;
+            padding: 0.65rem 1rem 0.75rem;
             max-width: 640px;
             border-radius: 24px;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.6));
@@ -93,6 +93,17 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .header-right {
+            margin-left: auto;
         }
 
         .language-toggle {
@@ -115,39 +126,36 @@
         }
         .chip-row {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 0.5rem;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            max-width: 640px;
-            padding: 0.25rem;
+            justify-content: flex-start;
         }
 
         .chip {
             border-radius: 999px;
-            padding: 0.6rem 1.25rem;
+            padding: 0.5rem 1.1rem;
             border: 1px solid rgba(26, 84, 144, 0.4);
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.9);
             color: var(--primary-dark);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-            box-shadow: 0 10px 20px rgba(26, 84, 144, 0.08);
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 10px rgba(26, 84, 144, 0.12);
             backdrop-filter: blur(12px);
         }
 
         .chip:focus-visible,
         .chip:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 30px rgba(26, 84, 144, 0.2);
             outline: none;
+            box-shadow: 0 6px 14px rgba(26, 84, 144, 0.18);
         }
 
         .chip--active {
             background: linear-gradient(135deg, rgba(26, 84, 144, 0.98), rgba(13, 58, 107, 0.95));
             color: #ffffff;
-            box-shadow: 0 14px 30px rgba(26, 84, 144, 0.35);
+            border-color: rgba(26, 84, 144, 0.9);
+            box-shadow: 0 6px 14px rgba(26, 84, 144, 0.18);
         }
 
         .language-label {
@@ -249,7 +257,7 @@
 
         .chip-widget-area {
             max-width: 640px;
-            margin: 0 auto 1.5rem;
+            margin: 0.25rem auto 1.2rem;
             padding: 0;
         }
 
@@ -944,6 +952,17 @@
             }
         }
 
+        @media (max-width: 414px) {
+            .chip-row {
+                gap: 0.35rem;
+            }
+
+            .chip {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.8rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .folder-dock {
                 position: fixed;
@@ -962,8 +981,14 @@
 <body>
     <header class="page-header">
         <div class="header-top">
-            <h1>Vote Moreau Actions</h1>
-            <div class="language-toggle">
+            <div class="header-left">
+                <div class="chip-row" aria-label="Action chips">
+                    <button type="button" class="chip" data-chip="countdown" aria-pressed="false">Countdown</button>
+                    <button type="button" class="chip" data-chip="polls" aria-pressed="false">Polls</button>
+                    <button type="button" class="chip" data-chip="alpha" aria-pressed="false">Alpha</button>
+                </div>
+            </div>
+            <div class="language-toggle header-right">
                 <span class="language-label">EN</span>
                 <label class="toggle-switch small" aria-label="Toggle language between English and Spanish">
                     <input type="checkbox" id="language-toggle" aria-label="Language toggle">
@@ -975,11 +1000,6 @@
     </header>
     
     <main class="springboard" aria-label="SpringBoard home screen">
-        <section class="chip-row" aria-label="Action chips">
-            <button type="button" class="chip" data-chip="countdown" aria-pressed="false">Countdown</button>
-            <button type="button" class="chip" data-chip="polls" aria-pressed="false">Polls</button>
-            <button type="button" class="chip" data-chip="alpha" aria-pressed="false">Alpha</button>
-        </section>
         <section id="chip-widget-area" class="chip-widget-area" aria-label="Chip widgets"></section>
         <div class="springboard-grid" id="springboard-grid" role="grid" aria-label="App grid"></div>
     </main>
